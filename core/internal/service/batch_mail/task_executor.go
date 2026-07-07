@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -166,6 +167,9 @@ type TaskExecutor struct {
 	// pause/resume control
 	pauseChan  chan struct{}
 	resumeChan chan struct{}
+
+	// dynamic rate limiting metrics
+	lastStatCheckTime time.Time
 }
 
 // SendResult send result
@@ -186,13 +190,14 @@ func NewTaskExecutor(ctx context.Context) *TaskExecutor {
 	taskCtx = context.WithValue(taskCtx, "serverIP", serverIP)
 
 	executor := &TaskExecutor{
-		ctx:            taskCtx,
-		cancel:         cancel,
-		lastActivity:   time.Now(),
-		startTime:      time.Now(),
-		pauseChan:      make(chan struct{}, 1),
-		resumeChan:     make(chan struct{}, 1),
-		rateController: NewSimpleRateController(1000),
+		ctx:               taskCtx,
+		cancel:            cancel,
+		lastActivity:      time.Now(),
+		startTime:         time.Now(),
+		pauseChan:         make(chan struct{}, 1),
+		resumeChan:        make(chan struct{}, 1),
+		rateController:    NewSimpleRateController(1000),
+		lastStatCheckTime: time.Now(),
 	}
 
 	return executor
@@ -513,12 +518,16 @@ func (e *TaskExecutor) getTaskIdFromContext(ctx context.Context) (int, error) {
 
 // configureRateController
 func (e *TaskExecutor) configureRateController(task *entity.EmailTask) {
-	maxPerMinute := task.Threads * 20 * 60
-	if maxPerMinute <= 0 {
-		maxPerMinute = 1000
+	// Spreads the send count smoothly over 10 hours (600 minutes)
+	maxPerMinute := (task.RecipientCount + 599) / 600
+	if maxPerMinute < 10 {
+		maxPerMinute = 10
 	}
-	g.Log().Info(context.Background(), "task %d: initialize send rate - max %d emails per minute, threads: %d",
-		task.Id, maxPerMinute, task.Threads)
+	if maxPerMinute > 300 {
+		maxPerMinute = 300
+	}
+	g.Log().Info(context.Background(), "task %d (recipients: %d): initialize send rate - max %d emails per minute (targeted 10-hour spread), threads: %d",
+		task.Id, task.RecipientCount, maxPerMinute, task.Threads)
 	e.rateController = NewSimpleRateController(maxPerMinute)
 }
 
@@ -632,6 +641,12 @@ func (e *TaskExecutor) processTaskRecipients(ctx context.Context, task *entity.E
 			}
 		}
 
+		// Dynamic protection check (every 2 minutes)
+		if time.Since(e.lastStatCheckTime) >= 2*time.Minute {
+			e.lastStatCheckTime = time.Now()
+			e.checkAndAdjustRateLimit(ctx, task.Id)
+		}
+
 		// get a batch of recipients to send
 		recipients, err := e.getNextRecipientBatch(ctx, task.Id, lastId, batchSize)
 		if err != nil {
@@ -672,6 +687,7 @@ func (e *TaskExecutor) getNextRecipientBatch(ctx context.Context, taskId, lastId
 	err := g.DB().Model("recipient_info").
 		Where("task_id", taskId).
 		Where("is_sent", 0).
+		Where("sent_time <= ?", time.Now().Unix()).
 		Where("id > ?", lastId).
 		Order("id ASC").
 		Limit(batchSize).
@@ -681,22 +697,73 @@ func (e *TaskExecutor) getNextRecipientBatch(ctx context.Context, taskId, lastId
 		return recipients, err
 	}
 
-	ids := make([]int, len(recipients))
+	// Filter out inactive/bounced recipients from this batch
+	emails := make([]string, len(recipients))
 	for i, r := range recipients {
-		ids[i] = r.Id
+		emails[i] = r.Recipient
 	}
 
-	_, err = g.DB().Model("recipient_info").
-		WhereIn("id", ids).
-		Data(g.Map{"is_sent": 2}).
-		Update()
+	var inactiveEmails []string
+	err = g.DB().Model("bm_contacts").
+		WhereIn("email", emails).
+		Where("active", 0).
+		Fields("email").
+		Scan(&inactiveEmails)
 
-	if err != nil {
-		g.Log().Error(ctx, "Failed to mark recipients as fetched: %v", err)
-		return nil, err
+	var activeRecipients []*entity.RecipientInfo
+	inactiveIds := make([]int, 0)
+
+	if err == nil && len(inactiveEmails) > 0 {
+		inactiveMap := make(map[string]bool)
+		for _, email := range inactiveEmails {
+			inactiveMap[email] = true
+		}
+
+		for _, r := range recipients {
+			if inactiveMap[r.Recipient] {
+				inactiveIds = append(inactiveIds, r.Id)
+			} else {
+				activeRecipients = append(activeRecipients, r)
+			}
+		}
+	} else {
+		activeRecipients = recipients
 	}
 
-	return recipients, nil
+	// Mark active ones as fetched (is_sent = 2)
+	activeIds := make([]int, len(activeRecipients))
+	for i, r := range activeRecipients {
+		activeIds[i] = r.Id
+	}
+
+	if len(activeIds) > 0 {
+		_, err = g.DB().Model("recipient_info").
+			WhereIn("id", activeIds).
+			Data(g.Map{"is_sent": 2}).
+			Update()
+		if err != nil {
+			g.Log().Error(ctx, "Failed to mark recipients as fetched: %v", err)
+			return nil, err
+		}
+	}
+
+	// Mark inactive ones as processed (is_sent = 1) immediately to skip sending
+	if len(inactiveIds) > 0 {
+		_, err = g.DB().Model("recipient_info").
+			WhereIn("id", inactiveIds).
+			Data(g.Map{
+				"is_sent":   1,
+				"sent_time": time.Now().Unix(),
+			}).
+			Update()
+		if err != nil {
+			g.Log().Error(ctx, "Failed to mark inactive recipients as processed: %v", err)
+		} else {
+			g.Log().Infof(ctx, "Skipped sending to %d inactive/bounced recipients", len(inactiveIds))
+		}
+	}
+
+	return activeRecipients, nil
 }
 
 // processRecipientBatch
@@ -735,7 +802,43 @@ func (e *TaskExecutor) processRecipientBatch(ctx context.Context, task *entity.E
 		}
 	}
 
-	updates := make(map[int]int)
+	// start result processing goroutine
+	resultsDone := make(chan struct{})
+	go func() {
+		e.processSendResults(ctx, resultChan)
+		close(resultsDone)
+	}()
+
+	// add an initial wait to sendWg so that sendWg.Wait() doesn't return immediately
+	// if workers finish before the submission loop finishes
+	sendWg.Add(1)
+
+	// start goroutine to close channel
+	go func() {
+		// wait for all send tasks to complete or context canceled
+		sendDone := make(chan struct{})
+		go func() {
+			sendWg.Wait()
+			close(sendDone)
+		}()
+
+		select {
+		case <-sendDone:
+			// all send tasks completed, safe close channel
+			safeClose()
+		case <-ctx.Done():
+			// context canceled, safe close channel
+			safeClose()
+		}
+	}()
+
+	// check global daily cap at batch level
+	if isGlobalDailyLimitExceeded(ctx) {
+		g.Log().Warning(ctx, "Global daily sending limit reached. Campaign paused.")
+		e.isPaused.Store(true)
+		safeClose()
+		return nil
+	}
 
 	// submit send task for each recipient
 	for _, recipient := range recipients {
@@ -765,17 +868,24 @@ func (e *TaskExecutor) processRecipientBatch(ctx context.Context, task *entity.E
 			}
 			// record error but continue
 			g.Log().Debugf(ctx, "Rate limit wait error: %v", err)
-
 		}
 
 		// check if recipient is allowed to send with warmup
 		if warmupAssociated, ok := e.ctx.Value("warmupAssociated").(bool); ok && warmupAssociated {
-			if allow, waits, _ := warmup.RateLimiter().Allow(ctx, e.ctx.Value("serverIP").(string), public.GetMailProviderGroup(recipient.Recipient)); !allow {
-				if waits > 0 {
-					updates[recipient.Id] = waits * 2
-				}
-				// rate limit exceeded, skip this recipient
+			outboundIP := getOutboundIPForRecipient(ctx, task, recipient)
+			if allow, waits, _ := warmup.RateLimiter().Allow(ctx, outboundIP, public.GetMailProviderGroup(recipient.Recipient)); !allow {
 				g.Log().Debug(ctx, "Rate limit exceeded for recipient %d, wait for %d seconds after retry, skipping", recipient.Id, waits)
+				curTime := int(time.Now().Unix())
+				sentTime := curTime + (waits * 2)
+				if waits <= 0 {
+					sentTime = curTime + 60 // default retry in 60s if waits is 0
+				}
+				_, _ = g.DB().Ctx(ctx).Model("recipient_info").
+					Where("id", recipient.Id).
+					Data(g.Map{
+						"sent_time": sentTime,
+						"is_sent":   0,
+					}).Update()
 				continue
 			}
 		}
@@ -791,17 +901,11 @@ func (e *TaskExecutor) processRecipientBatch(ctx context.Context, task *entity.E
 		err := e.pool.Submit(func() {
 			defer e.wg.Done()
 			defer sendWg.Done()
-			// print task id
-			//g.Log().Debug(ctx, "current task id", task.Id, "sender-", task.Addresser, "recipient-", recipientBak.Recipient)
 			// personalize content
 			personalized, _ := e.personalizeEmail(ctx, emailContent, task, recipientBak)
-			//personalized := emailContent
 
 			// send email
 			result := e.sendEmail(ctx, task, recipientBak, personalized)
-
-			// use sendEmailMock (Don't use in production)
-			// result := e.sendEmailMock(ctx, task, recipientBak, personalized)
 
 			// record send
 			e.rateController.RecordSend()
@@ -833,52 +937,8 @@ func (e *TaskExecutor) processRecipientBatch(ctx context.Context, task *entity.E
 		}
 	}
 
-	if len(updates) > 0 {
-		curTime := int(time.Now().Unix())
-		data := make([]map[string]interface{}, 0, len(updates))
-		i := 0
-		for id, waits := range updates {
-			data = append(data, g.Map{
-				"id":         id,
-				"task_id":    0,
-				"recipient":  "",
-				"message_id": "",
-				"sent_time":  curTime + (waits * ((i % 10) + 1)),
-			})
-			i++
-		}
-		_, _ = g.DB().Ctx(ctx).Model("recipient_info").Data(data).OnConflict("id").OnDuplicate(g.Map{
-			"sent_time": gdb.Raw("excluded.sent_time"),
-		}).Save()
-	}
-
-	// all tasks submitted, start result processing and channel closure goroutine
-	resultsDone := make(chan struct{})
-
-	// start goroutine to close channel
-	go func() {
-		// wait for all send tasks to complete or context canceled
-		sendDone := make(chan struct{})
-		go func() {
-			sendWg.Wait()
-			close(sendDone)
-		}()
-
-		select {
-		case <-sendDone:
-			// all send tasks completed, safe close channel
-			safeClose()
-		case <-ctx.Done():
-			// context canceled, safe close channel
-			safeClose()
-		}
-	}()
-
-	// start result processing goroutine
-	go func() {
-		e.processSendResults(ctx, resultChan)
-		close(resultsDone)
-	}()
+	// release the initial wait count we added to sendWg
+	sendWg.Done()
 
 	// wait for result processing to complete or context canceled
 	select {
@@ -1195,8 +1255,10 @@ func (e *TaskExecutor) sendEmail(ctx context.Context, task *entity.EmailTask, re
 		if err != nil {
 			g.Log().Warning(ctx, "failed to get all mailboxes: %v, using original sender", err)
 		} else if len(mailboxes) > 0 {
+			// Filter out mailboxes on IP cooldown
+			healthyMailboxes := filterHealthyMailboxes(ctx, mailboxes)
 			// Select mailbox based on recipient ID for consistent rotation
-			selected := selectRotatedSender(mailboxes, recipient.Id)
+			selected := selectRotatedSender(healthyMailboxes, recipient.Id)
 			senderEmail = selected.Username
 			senderName = selected.FullName
 		}
@@ -1621,19 +1683,6 @@ func getAllMailboxes(ctx context.Context) ([]MailboxInfo, error) {
 	return mailboxes, nil
 }
 
-// getAllMailboxes returns all active mailboxes across all domains
-func getAllMailboxes(ctx context.Context) ([]MailboxInfo, error) {
-	var mailboxes []MailboxInfo
-	err := g.DB().Model("mailbox").
-		Where("active", 1).
-		Order("username ASC").
-		Scan(&mailboxes)
-	if err != nil {
-		return nil, err
-	}
-	return mailboxes, nil
-}
-
 // extractDomain extracts the domain from an email address
 func extractDomain(email string) string {
 	parts := strings.Split(email, "@")
@@ -1649,4 +1698,289 @@ func selectRotatedSender(mailboxes []MailboxInfo, recipientIndex int) MailboxInf
 		return MailboxInfo{}
 	}
 	return mailboxes[recipientIndex%len(mailboxes)]
+}
+
+func getOutboundIPForRecipient(ctx context.Context, task *entity.EmailTask, recipient *entity.RecipientInfo) string {
+	senderEmail := task.Addresser
+	if task.RotateSenders == 1 {
+		mailboxes, err := getAllMailboxes(ctx)
+		if err == nil && len(mailboxes) > 0 {
+			healthyMailboxes := filterHealthyMailboxes(ctx, mailboxes)
+			selected := selectRotatedSender(healthyMailboxes, recipient.Id)
+			senderEmail = selected.Username
+		}
+	}
+	domain := extractDomain(senderEmail)
+	if domain == "" {
+		val, err := g.DB().Model("bm_multi_ip_domain").Ctx(ctx).Where("active = 1").Value("outbound_ip")
+		if err == nil && !val.IsEmpty() {
+			return val.String()
+		}
+		return "5.230.228.116"
+	}
+
+	var outboundIP string
+	val, err := g.DB().Model("bm_multi_ip_domain").
+		Ctx(ctx).
+		Where("domain = ? AND active = 1", domain).
+		Value("outbound_ip")
+	if err == nil && !val.IsEmpty() {
+		outboundIP = val.String()
+	}
+
+	if outboundIP == "" {
+		val, err := g.DB().Model("bm_multi_ip_domain").Ctx(ctx).Where("active = 1").Value("outbound_ip")
+		if err == nil && !val.IsEmpty() {
+			return val.String()
+		}
+		return "5.230.228.116"
+	}
+	return outboundIP
+}
+
+func (e *TaskExecutor) checkAndAdjustRateLimit(ctx context.Context, taskId int) {
+	// 1. Get configuration thresholds from env
+	throttleThresholdStr := public.MustGetDockerEnv("BOUNCE_THROTTLE_THRESHOLD", "0.05") // 5%
+	pauseThresholdStr := public.MustGetDockerEnv("BOUNCE_PAUSE_THRESHOLD", "0.10")       // 10%
+	throttleFactorStr := public.MustGetDockerEnv("BOUNCE_THROTTLE_FACTOR", "0.50")       // 50%
+
+	// Parse values
+	throttleThreshold := 0.05
+	pauseThreshold := 0.10
+	throttleFactor := 0.50
+	if v, err := strconv.ParseFloat(throttleThresholdStr, 64); err == nil {
+		throttleThreshold = v
+	}
+	if v, err := strconv.ParseFloat(pauseThresholdStr, 64); err == nil {
+		pauseThreshold = v
+	}
+	if v, err := strconv.ParseFloat(throttleFactorStr, 64); err == nil {
+		throttleFactor = v
+	}
+
+	// 2. Query total sent and bounced/deferred in the last 15 minutes for this task
+	now := time.Now().Unix()
+	timeWindow := int64(900) // 15 minutes
+
+	var stats struct {
+		Total  int `json:"total"`
+		Failed int `json:"failed"`
+	}
+
+	// We join mailstat_send_mails with mailstat_message_ids and recipient_info
+	err := g.DB().Model("mailstat_send_mails sm").
+		Ctx(ctx).
+		InnerJoin("mailstat_message_ids mi", "sm.postfix_message_id=mi.postfix_message_id").
+		InnerJoin("recipient_info r", "mi.message_id=r.message_id").
+		Where("r.task_id", taskId).
+		Where("sm.log_time >= ?", now-timeWindow).
+		Fields("COUNT(*) as total, SUM(CASE WHEN sm.status IN ('bounced', 'deferred') THEN 1 ELSE 0 END) as failed").
+		Scan(&stats)
+
+	if err != nil {
+		g.Log().Warning(ctx, "failed to get campaign dynamic stats: %v", err)
+		return
+	}
+
+	if stats.Total < 10 { // not enough emails sent in the window to determine a pattern
+		return
+	}
+
+	failureRate := float64(stats.Failed) / float64(stats.Total)
+	g.Log().Infof(ctx, "Campaign %d: Last 15m stats - sent: %d, failures: %d, failure rate: %.2f%%",
+		taskId, stats.Total, stats.Failed, failureRate*100)
+
+	// 3. Apply logic
+	if failureRate >= pauseThreshold {
+		g.Log().Warningf(ctx, "Campaign %d failure rate (%.2f%%) exceeds pause threshold (%.2f%%). Pausing for 1 hour.",
+			taskId, failureRate*100, pauseThreshold*100)
+
+		// Set pause state
+		e.isPaused.Store(true)
+
+		go func() {
+			time.Sleep(1 * time.Hour)
+			g.Log().Infof(ctx, "Auto-resuming campaign %d after cooldown", taskId)
+			e.isPaused.Store(false)
+			select {
+			case e.resumeChan <- struct{}{}:
+			default:
+			}
+		}()
+	} else if failureRate >= throttleThreshold {
+		// Calculate dynamic throttled rate limit
+		task, _ := GetTaskInfo(ctx, taskId)
+		if task != nil {
+			normalMaxPerMinute := (task.RecipientCount + 599) / 600
+			if normalMaxPerMinute < 10 {
+				normalMaxPerMinute = 10
+			}
+			if normalMaxPerMinute > 300 {
+				normalMaxPerMinute = 300
+			}
+			throttledRate := int(float64(normalMaxPerMinute) * throttleFactor)
+			if throttledRate < 5 {
+				throttledRate = 5
+			}
+
+			g.Log().Warningf(ctx, "Campaign %d failure rate (%.2f%%) exceeds throttle threshold (%.2f%%). Throttling rate to %d/min (was %d/min).",
+				taskId, failureRate*100, throttleThreshold*100, throttledRate, normalMaxPerMinute)
+
+			e.rateController.SetMaxPerMinute(throttledRate)
+		}
+	} else {
+		// Reset to normal rate limit
+		task, _ := GetTaskInfo(ctx, taskId)
+		if task != nil {
+			normalMaxPerMinute := (task.RecipientCount + 599) / 600
+			if normalMaxPerMinute < 10 {
+				normalMaxPerMinute = 10
+			}
+			if normalMaxPerMinute > 300 {
+				normalMaxPerMinute = 300
+			}
+			if e.rateController.GetMaxRate() != normalMaxPerMinute {
+				g.Log().Infof(ctx, "Campaign %d failure rate is healthy (%.2f%%). Restoring normal rate to %d/min.",
+					taskId, failureRate*100, normalMaxPerMinute)
+				e.rateController.SetMaxPerMinute(normalMaxPerMinute)
+			}
+		}
+	}
+
+	// 4. Query failure rate per IP and place failing IPs on 2-hour cooldown
+	var ipStats []struct {
+		OutboundIp string `json:"outbound_ip"`
+		Total      int    `json:"total"`
+		Failed     int    `json:"failed"`
+	}
+	err = g.DB().Model("mailstat_send_mails sm").
+		Ctx(ctx).
+		InnerJoin("mailstat_senders sn", "sm.postfix_message_id = sn.postfix_message_id").
+		InnerJoin("bm_multi_ip_domain d", "substring(sn.sender from '@(.*)$') = d.domain").
+		Where("sm.log_time >= ?", now-timeWindow).
+		Group("d.outbound_ip").
+		Fields("d.outbound_ip, COUNT(*) as total, SUM(CASE WHEN sm.status IN ('bounced', 'deferred') THEN 1 ELSE 0 END) as failed").
+		Scan(&ipStats)
+
+	if err == nil {
+		for _, stat := range ipStats {
+			if stat.Total >= 20 {
+				rate := float64(stat.Failed) / float64(stat.Total)
+				if rate >= pauseThreshold {
+					g.Log().Warningf(ctx, "[COOLDOWN] IP %s failure rate (%.2f%%) exceeds pause threshold (%.2f%%). Placing on 2-hour cooldown.", stat.OutboundIp, rate*100, pauseThreshold*100)
+					_ = g.Redis().SetEX(ctx, "ip:cooldown:"+stat.OutboundIp, "1", 7200)
+				}
+			}
+		}
+	}
+}
+
+func filterHealthyMailboxes(ctx context.Context, mailboxes []MailboxInfo) []MailboxInfo {
+	var healthy []MailboxInfo
+	for _, m := range mailboxes {
+		domain := extractDomain(m.Username)
+		if domain == "" {
+			healthy = append(healthy, m)
+			continue
+		}
+		var outboundIP string
+		val, err := g.DB().Model("bm_multi_ip_domain").
+			Ctx(ctx).
+			Where("domain = ? AND active = 1", domain).
+			Value("outbound_ip")
+		if err == nil && !val.IsEmpty() {
+			outboundIP = val.String()
+		}
+		if outboundIP != "" {
+			isCooldown, err := g.Redis().Get(ctx, "ip:cooldown:"+outboundIP)
+			if err == nil && !isCooldown.IsEmpty() {
+				continue
+			}
+		}
+		healthy = append(healthy, m)
+	}
+	if len(healthy) == 0 {
+		return mailboxes
+	}
+	return healthy
+}
+
+func isGlobalDailyLimitExceeded(ctx context.Context) bool {
+	// If DAILY_SEND_LIMIT is explicitly set to "disable", completely bypass the cap
+	limitEnv := public.MustGetDockerEnv("DAILY_SEND_LIMIT", "")
+	if strings.ToLower(limitEnv) == "disable" {
+		return false
+	}
+
+	// 1. Get all active IPs from the multi-IP table
+	var activeIPs []string
+	err := g.DB().Model("bm_multi_ip_domain").
+		Ctx(ctx).
+		Where("active", 1).
+		Fields("DISTINCT outbound_ip").
+		Scan(&activeIPs)
+	if err != nil || len(activeIPs) == 0 {
+		return false
+	}
+
+	// 2. Sum the dynamic daily limits for all active IPs
+	totalDynamicLimit := 0
+	for _, ip := range activeIPs {
+		// Use the built-in daily upstairs service to calculate the base limit for the IP's current warmup day
+		baseDaily, _, err := warmup.WarmupDailyUpstairs().GetSendingLimits(ctx, ip)
+		if err != nil {
+			// fallback default limit per IP during warmup if lookup fails
+			totalDynamicLimit += 1000
+			continue
+		}
+		
+		// If baseDaily is 0, it means warmup is fully completed (100% progress).
+		// In this case, we allow a safe post-warmup capacity of 5,000 emails/day for this IP.
+		if baseDaily <= 0 {
+			totalDynamicLimit += 5000
+			continue
+		}
+		
+		// Query the IP's overall reputation score to factor it into the limit
+		var score int
+		val, err := g.DB().Model("bm_sender_ip_warmup").Ctx(ctx).Where("sender_ip", ip).Value("score")
+		if err == nil && !val.IsEmpty() {
+			score = val.Int()
+		} else {
+			score = 100 // fallback
+		}
+		
+		// Adjust the daily limit by the IP's reputation health score
+		factor := float64(score) / 100.0
+		totalDynamicLimit += int(float64(baseDaily) * factor)
+	}
+
+	// 3. Allow manual override/cap from the env file if specified (e.g. DAILY_SEND_LIMIT=1000)
+	if limitEnv != "" {
+		if limit, err := strconv.Atoi(limitEnv); err == nil && limit > 0 {
+			totalDynamicLimit = limit
+		}
+	}
+
+	// 4. Query total sent emails today across the entire server
+	now := time.Now().UTC()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).Unix()
+
+	var count int
+	err = g.DB().Model("mailstat_send_mails").
+		Ctx(ctx).
+		Where("log_time >= ?", startOfDay).
+		Where("status", "sent").
+		Fields("COUNT(*)").
+		Scan(&count)
+	if err != nil {
+		g.Log().Warningf(ctx, "Failed to get global daily count: %v", err)
+		return false
+	}
+
+	if count >= totalDynamicLimit {
+		g.Log().Warningf(ctx, "[LIMIT] Dynamic daily cap reached (%d/%d sent today). Pausing.", count, totalDynamicLimit)
+		return true
+	}
+	return false
 }
