@@ -22,6 +22,10 @@
 12. [Command Reference](#12-command-reference)
 13. [Common Pitfalls](#13-common-pitfalls)
 14. [Noez Blacklist Fix Deep Dive](./NOEZ_BLACKLIST_FIX.md)
+15. [Dynamic Sending & Jitter Plan](./DYNAMIC_SENDING_PLAN.md)
+16. [How to Rebuild & Redeploy Backend Code](#16-how-to-rebuild--redeploy-backend-code)
+17. [How to Create & Schedule Outbound Campaigns](#17-how-to-create--schedule-outbound-campaigns)
+18. [Deliverability Protection & Dynamic Limits](#18-deliverability-protection--dynamic-limits)
 
 ---
 
@@ -1612,3 +1616,144 @@ This system works when:
 The #1 mistake is forgetting #4 - always check `ip route show table local` and ensure Noez IPs are NOT there!
 
 The #2 mistake (v4.9.0+) is using old SQL schema - always check table structure before INSERT!
+
+---
+
+## 16. HOW TO REBUILD & REDEPLOY BACKEND CODE
+
+BillionMail's core binary is written in Go and runs inside a Debian-based Docker container (`core-billionmail`). To compile and deploy backend changes, follow these steps:
+
+### Rebuild Workflow
+1.  **Do NOT compile directly on the host** if Go is not installed or version-mismatched.
+2.  **Compile inside a Debian Docker container** to ensure dynamic linking compatibility (`glibc` vs `musl`):
+    ```bash
+    docker run --rm \
+      -v /opt/billionmail/core:/app \
+      -w /app \
+      golang:1.22 \
+      go build -ldflags="-s -w" -o billionmail-test main.go
+    ```
+    This compiles a compatible static binary named `billionmail-test` inside `/opt/billionmail/core/`.
+3.  **Build the Docker Image:** Rebuild the container image using Docker Compose. This automatically copies `billionmail-test` to the correct internal path `/opt/billionmail/core/billionmail`:
+    ```bash
+    docker compose build core-billionmail
+    ```
+4.  **Restart the Container:** Apply the changes by recreating and starting the container:
+    ```bash
+    docker compose up -d core-billionmail
+    ```
+5.  **Verify Service Status:** Check the logs to ensure the service did not fail to spawn (Exit 127/ENOENT):
+    ```bash
+    docker compose logs core-billionmail --tail=30
+    ```
+
+---
+
+## 17. HOW TO CREATE & SCHEDULE OUTBOUND CAMPAIGNS
+
+This section outlines how to create, validate, and schedule outbound campaigns directly in the BillionMail database, ensuring safe delivery rates, personalization fallbacks, and spintax formatting.
+
+### 1. Copywriting & Template Syntax Rules
+
+To maximize deliverability and avoid spam filters, BillionMail templates use two layers of dynamic processing:
+
+#### A. Go Template Personalization (with Fallbacks)
+To prevent empty field errors (e.g. "Hi ," or "check out your  in tech"), you **must** use conditional statements. Never output a raw variable like `{{.Subscriber.first_name}}` without an `if` block.
+
+*   **First Name Fallback:**
+    ```html
+    Hi {{if .Subscriber.first_name}}{{.Subscriber.first_name}}{{else}}there{{end}},
+    ```
+*   **Company Name Fallback:**
+    ```html
+    {{if .Subscriber.company_name}}{{.Subscriber.company_name}}{{else}}your company{{end}}
+    ```
+*   **Subject Line Personalization:** Ensure that subject alternatives are also safe from empty fields:
+    ```text
+    { {{if .Subscriber.first_name}}{{.Subscriber.first_name}}?{{else}}quick check?{{end}} | quick check for {{if .Subscriber.company_name}}{{.Subscriber.company_name}}{{else}}your company{{end}} }
+    ```
+
+#### B. Spintax Formatting
+BillionMail rotates text options enclosed in curly braces separated by vertical bars `{option 1|option 2}`.
+*   **Rule:** Ensure that single curly braces for spintax are perfectly balanced (`{` matches `}`) and do not interfere with Go template double braces (`{{` and `}}`).
+
+---
+
+### 2. Campaign Setup Parameters in `email_tasks`
+
+When inserting a campaign into the `email_tasks` table, configure the following columns:
+
+| Column | Recommended Value | Purpose |
+| :--- | :--- | :--- |
+| `threads` | `10` | Caps the sending rate to a safe **10 emails/minute** (setting to `0` defaults to 1000/min and gets blacklisted). |
+| `rotate_senders` | `1` | Enables **warmup sender rotation** across all active mailboxes. |
+| `track_open` | `1` | Enables open tracking. |
+| `track_click` | `1` | Enables click tracking. |
+| `unsubscribe` | `0` | **Deactivates the default unsubscribe link** at the bottom, allowing you to use a custom reply-to opt-out ("Reply STOP"). |
+| `active` | `1` | Activates the task for processing. |
+| `pause` | `0` | Set to 0 to keep the task ready for the scheduler daemon. |
+| `task_process` | `0` | Represents "Ready/Waiting". |
+
+---
+
+### 3. Sequential Scheduling & Warmup
+
+To schedule a weekly campaign sequence without overloading IPs:
+1.  **Set `start_time`:** Assign the Unix timestamp for the start date and time (e.g. 9:00 AM local time). The Go engine only picks up tasks where `start_time <= CurrentTime`.
+2.  **Enable Warmup Rotation:** Create a record in `bm_campaign_warmup` linking the task to `warmup_id = 1`:
+    ```sql
+    INSERT INTO bm_campaign_warmup (task_id, warmup_id) VALUES (task_id, 1);
+    ```
+
+---
+
+### 4. Verification & Validation Script
+
+Always run a pre-flight validation script to check Go template syntax and spintax before updating the database. The validator must check:
+1.  `{{` count matches `}}` count.
+2.  `{` count matches `}` count (after stripping double variables).
+3.  No bare `.Subscriber` variables are used outside an `if` condition.
+
+---
+
+### 5. Mandatory Pre-Flight Test Email Verification
+
+Before activating or scheduling any campaign in the Go engine, you **must** run a test send to verify rendering:
+1.  **Queue Test Recipient:** Ensure `all_replies@moescale.site` is in the target `bm_contacts` group (it is pre-populated in all 110 segments with attributes `first_name: "Alex"`, `company_name: "Hormozi Corp"`).
+2.  **Trigger Test Send:** Call the `SendTestEmail` API or execute `send_test_email.py` for the target template.
+3.  **Verify local delivery rendering:** Read the received email file in `/opt/billionmail/vmail-data/moescale.site/all_replies/cur/` and confirm:
+    - Spintax options are resolved.
+    - Personalization tags (`first_name`, `company_name`) are correctly populated.
+    - Subject line layout is correct.
+    - *Note:* The test endpoint always appends an unsubscribe link at the bottom; ignore this if task `unsubscribe = 0` is set for the actual run.
+4.  **Activate Campaign:** Only after verification, set the task's `start_time` or `active = 1` to allow the Go core engine to process the campaign.
+
+---
+
+## 18. DELIVERABILITY PROTECTION & DYNAMIC LIMITS
+
+BillionMail has three layers of automated protection logic configured in `/opt/billionmail/.env`:
+
+### A. Dynamic Bounce Protection (Campaign-Level)
+* **Frequency:** Evaluates campaign stats every 2 minutes over a rolling 15-minute window.
+* **Throttle Threshold:** If campaign bounce/deferral rate exceeds 5%, sending speed is halved (`BOUNCE_THROTTLE_FACTOR=0.50`).
+* **Pause Threshold:** If campaign bounce/deferral rate exceeds 10%, the campaign automatically pauses for 1 hour.
+* **Settings:**
+  ```env
+  BOUNCE_THROTTLE_THRESHOLD=0.05
+  BOUNCE_PAUSE_THRESHOLD=0.10
+  BOUNCE_THROTTLE_FACTOR=0.50
+  ```
+
+### B. IP Cooldown Isolation (IP-Level)
+* **Trigger:** If an individual IP has >= 20 sends and its bounce rate is >= 10% in the last 15 minutes, it is placed on a **2-hour cooldown** in Redis.
+* **Routing:** The worker pool automatically routes around cooled-down IPs, letting healthy IPs continue sending.
+
+### C. Dynamic Daily Cap (Global Safety)
+* **Config:** Managed by `DAILY_SEND_LIMIT` in `.env`.
+* **Dynamic Mode (Blank):** Set `DAILY_SEND_LIMIT=`. The Go backend calculates the daily cap by summing the daily warmup capacity of all active IPs, throttled by their health scores.
+* **Manual Override:** Set `DAILY_SEND_LIMIT=5000` to enforce a hard daily limit across the system.
+* **Disabled:** Set `DAILY_SEND_LIMIT=disable` to bypass daily cap checks.
+
+
+
