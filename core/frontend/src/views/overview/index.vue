@@ -75,7 +75,7 @@ const dateRange = ref(getDayTimeRange())
 const providers = ref<MailProvider[]>([])
 
 const rateData = reactive<RateData>({
-	delivery_rate: { label: t('overview.delivered'), value: 0, unit: '%' },
+	delivered: { label: t('overview.delivered'), value: 0, unit: '' },
 	open_rate: { label: t('overview.opened'), value: 0, unit: '%' },
 	click_rate: { label: t('overview.clicked'), value: 0, unit: '%' },
 	bounce_rate: { label: t('overview.bounced'), value: 0, unit: '%' },

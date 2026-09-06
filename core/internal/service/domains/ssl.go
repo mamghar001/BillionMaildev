@@ -25,7 +25,7 @@ import (
 func ApplyLetsEncryptCertWithHttp(ctx context.Context, domain string, accountInfo *model.Account) error {
 	// Find the existing certificate for the domain
 	if crt, err := FindSSLByDomain(domain); err == nil && crt != nil {
-		if crt.Status == 1 && crt.EndTime > time.Now().Unix() {
+		if crt.Status == 1 && crt.EndTime > time.Now().AddDate(0, 0, 3).Unix() {
 			g.Log().Debug(ctx, "Found existing certificate for domain:", domain)
 			return ApplyCertToService(domain, crt.Certificate, crt.PrivateKey)
 		}
@@ -233,7 +233,7 @@ func ApplyConsoleCert(ctx context.Context) error {
 	if crt.CertId == 0 || crt.Certificate == "" {
 		g.Log().Debug(ctx, "No existing certificate found:", hostname)
 	} else {
-		if crt.Status == 1 && crt.EndTime > time.Now().Unix() {
+		if crt.Status == 1 && crt.EndTime > time.Now().AddDate(0, 0, 3).Unix() {
 			err = ApplyCertToConsole(crt.Certificate, crt.PrivateKey)
 			if err != nil {
 				return gerror.Newf("Failed to apply existing certificate to console: %v", err)

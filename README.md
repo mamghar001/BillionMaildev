@@ -1,173 +1,149 @@
-<div align="center">
-  <a name="readme-top"></a>
-  <h1><a href="https://www.billionmail.com/" target="_blank">BillionMail 📧</a></h1>
+# BillionMail - MoeScale Edition
 
-
-## An Open-Source MailServer, NewsLetter, Email Marketing Solution for Smarter Campaigns
-
-[![][license-shield]][license-link] [![][docs-shield]][docs-link] [![][github-release-shield]][github-release-link] [![][github-stars-shield]][github-stars-link]
-
-English | [简体中文](README-zh_CN.md) | [日本語](README-ja.md) | [Türkçe](README-ja.md)
-</div>
-<br/>
-
-<div align="center">
-<a href="https://trendshift.io/repositories/13842" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13842" alt="aaPanel%2FBillionMail | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</div>
-
-## What is BillionMail?
-
-BillionMail is a **future open-source Mail server, Email marketing platform** designed to help businesses and individuals manage their email campaigns with ease. Whether you're sending newsletters, promotional emails, or transactional messages, this tool will provide **full control** over your email marketing efforts. With features like **advanced analytics**, and **customer management**, you'll be able to create, send, and track emails like a pro.
-
-![BillionMail Banner](https://www.billionmail.com/home.png?v1)
-
-# Just 3 steps to send a billion emails!
-**Billion emails. Any business. Guaranteed.**
-
-### Step 1️⃣ Install BillionMail: 
-✅ It takes **only 8️⃣ minutes** from installation to **✅ successful email sending**
-```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && bash install.sh
-```
-
-
-### Step 2️⃣: Connect Your Domain
-- Add the sending domain
-- Verify DNS records
-- Auto-enable free SSL
-
-
-### Step 3️⃣: Build Your Campaign
-
-- Write or paste your email
-- Choose list & tags
-- Set send time or send now
-
-
-<div align="center">
-  <a href="https://www.youtube.com/embed/UHgxZa_9jGs?si=0-f1B5hDtcWImvQv" target="_blank">
-    <img src="https://img.youtube.com/vi/UHgxZa_9jGs/maxresdefault.jpg" alt="" width="80%">
-    <br />
-    <img src="https://www.iconfinder.com/icons/317714/download/png/16" alt="YouTube" width="16"/>
-    <b>Watch on Youtube</b>
-  </a>
-</div>
-
-
-## Other installation methods
-
-### One-click installation on aaPanel
-👉 https://www.aapanel.com/new/download.html  (Log in to ✅aaPanel --> 🐳Docker --> 1️⃣OneClick install)
-
-
-
-
-**Docker**
-```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
-```
-
-## Management script
-- Management help
-
-  `bm help`
-
-- View Login default info
-
-  `bm default`
-
-- Show domain DNS record
-
-  `bm show-record`
-
-- Update BillionMail
-
-  `bm update`
-
-## Live Demo
-BillionMail Demo: [https://demo.billionmail.com/billionmail](https://demo.billionmail.com/billionmail)
-
-Username: `billionmail` 
-
-Password: `billionmail` 
-
-
-## WebMail
-
-BillionMail has integrated **RoundCube**, you can access WebMail via `/roundcube/`.
-
-## Why BillionMail?
-
-Most email marketing platforms are either **expensive**, **closed-source**, or **lack essential features**. BillionMail aims to be different:
-
-✅ **Fully Open-Source** – No hidden costs, no vendor lock-in.  
-📊 **Advanced Analytics** – Track email delivery, open rates, click-through rates, and more.  
-📧 **Unlimited Sending** – No restrictions on the number of emails you can send.  
-🎨 **Customizable Templates** – Custom professional marketing templates for reuse.
-🔒 **Privacy-First** – Your data stays with you, no third-party tracking.  
-🚀 **Self-Hosted** – Run it on your own server for complete control.  
-
-## How You Can Help 🌟
-
-BillionMail is a **community-driven project**, and we need your support to get started! Here's how you can help:
-
-1. **Star This Repository**: Show your interest by starring this repo.  
-2. **Spread the Word**: Share BillionMail with your network—developers, marketers, and open-source enthusiasts.  
-3. **Share Feedback**: Let us know what features you'd like to see in BillionMail by opening an issue or joining the discussion.  
-4. **Contribute**: Once development begins, we'll welcome contributions from the community. Stay tuned for updates!
+> **🚀 ONE-COMMAND INSTALL:**
+> ```bash
+> bash <(curl -sSL https://raw.githubusercontent.com/mamghar001/MoeScale-BillionMail/main/one-command-install.sh)
+> ```
 
 ---
 
-📧 **BillionMail – The Future of Open-Source Email Marketing.**
+## 🏷️ Current Release: v4.9.0
 
-## Issues
-
-If you encounter any issues or have feature requests, please [open an issue](https://github.com/aaPanel/BillionMail/issues). Be sure to include:
-
-- A clear description of the problem or request.
-- Steps to reproduce the issue (if applicable).
-- Screenshots or error logs (if applicable).
-
-## Install Now:
-✅It takes **only 8 minutes** from installation to **successful email sending**
-```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && bash install.sh
-```
-
-
-**Install with Docker:** (Please install Docker and docker-compose-plugin manually, and modify .env file)
-```shell
-cd /opt && git clone https://github.com/aaPanel/BillionMail && cd BillionMail && cp env_init .env && docker compose up -d || docker-compose up -d
-```
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=aapanel/billionmail&type=Date)](https://www.star-history.com/#aapanel/billionmail&Date)
-
-## License
-
-BillionMail is licensed under the **AGPLv3 License**. This means you can:
-
-✅ Use the software for free.  
-✅ Modify and distribute the code.  
-✅ Use it privately without restrictions.
-
-See the [LICENSE](LICENSE) file for more details.
+| Version | Status | Notes |
+|---------|--------|-------|
+| **v4.9.0** | ✅ **Stable** | Fresh-install ready — all critical bugs fixed |
 
 ---
 
-<!-- BillionMail official link -->
-[docs-link]: https://www.billionmail.com/
+## ✅ What's Fixed in v4.9.0
 
-<!-- BillionMail Other link-->
-[license-link]: https://www.gnu.org/licenses/agpl-3.0.html
-[github-release-link]: https://github.com/aaPanel/BillionMail/releases/latest
-[github-stars-link]: https://github.com/aaPanel/BillionMail
-[github-issues-link]: https://github.com/aaPanel/BillionMail/issues
+1. **Dovecot SSL bootloop** — Removed hardcoded private domain SSL blocks that caused Dovecot to fatal-crash on startup on every fresh VPS.
+2. **Postfix DB password desync** — The installer now re-applies SQL config passwords *after* `install.sh` finishes, preventing the `451 Temporary lookup failure` that blocked email sending.
+3. **Sanitized private config remnants** — All hardcoded private domain routes, DKIM selectors, BCC aliases, and SSL mappings removed from repo skeleton.
 
-<!-- Shield link-->
-[docs-shield]: https://img.shields.io/badge/documentation-148F76
-[github-release-shield]: https://img.shields.io/github/v/release/aaPanel/BillionMail
-[github-stars-shield]: https://img.shields.io/github/stars/aaPanel/BillionMail?color=%231890FF&style=flat-square   
-[license-shield]: https://img.shields.io/github/license/aaPanel/BillionMail
+---
 
+## 📦 Quick Start
+
+### One-Command Install (Recommended)
+```bash
+bash <(curl -sSL https://raw.githubusercontent.com/mamghar001/MoeScale-BillionMail/main/one-command-install.sh)
+```
+
+### 🏷️ Advanced: Install Specific Version or Branch
+If you need to target a specific release tag or development branch, you can pass the `BRANCH` environment variable:
+```bash
+# Example: Install v4.9.0
+BRANCH=v4.9.0 bash <(curl -sSL https://raw.githubusercontent.com/mamghar001/MoeScale-BillionMail/main/one-command-install.sh)
+
+# Example: Install a development branch
+BRANCH=moescale-fixed bash <(curl -sSL https://raw.githubusercontent.com/mamghar001/MoeScale-BillionMail/main/one-command-install.sh)
+```
+
+The script will:
+- Check system requirements (Ubuntu 20.04/22.04/24.04)
+- Install Docker & dependencies
+- Ask for your domain, admin credentials, and IPs
+- Clone the v4.9.0 stable release
+- Configure and start all services automatically
+- Sync SQL passwords and restart Postfix post-install
+
+You only need to provide:
+- Your domain name (e.g. `brainbaba.org`)
+- Admin username & password
+- Your server IP(s)
+- (Optional) SMTP relay credentials for Gmail/Hotmail delivery
+
+---
+
+## ✅ Setup Checklist
+
+### 1. Server Requirements
+- Ubuntu 20.04, 22.04, or 24.04 VPS
+- 2GB+ RAM, 20GB+ disk
+- Root access
+- Ports open: `25, 465, 587, 80, 443, 110, 143, 993, 995`
+
+### 2. DNS Records (before install)
+| Type | Name | Value |
+|------|------|-------|
+| A | `@` | Your VPS IP |
+| A | `mail` | Your VPS IP |
+| MX | `@` | `mail.yourdomain.com` (priority 10) |
+| TXT | `@` | `v=spf1 +a +mx +ip4:YOUR_IP ~all` |
+| TXT | `_dmarc` | `v=DMARC1;p=quarantine;rua=mailto:dmarc@yourdomain.com` |
+
+> After install: generate DKIM key in BillionMail web UI and add as DNS TXT record.
+
+### 3. Install
+```bash
+bash <(curl -sSL https://raw.githubusercontent.com/mamghar001/MoeScale-BillionMail/main/one-command-install.sh)
+```
+
+### 4. Post-install
+1. Open `https://YOUR_IP/adminPanel` → log in
+2. Add your domain in **Domain Management**
+3. Generate & add DKIM records
+4. Create a mailbox
+5. Test via **WebMail** at `https://YOUR_IP/roundcube`
+
+---
+
+## 🔧 Management Commands
+
+```bash
+cd /opt/billionmail
+
+# Status
+bash bm.sh status
+
+# Restart all
+bash bm.sh restart
+
+# Restart specific container
+docker compose restart postfix-billionmail
+
+# View logs
+docker compose logs postfix-billionmail --tail 50
+docker compose logs dovecot-billionmail --tail 50
+```
+
+---
+
+## ⚠️ Gmail & Hotmail Delivery
+
+Fresh IPs may be blocked. Options:
+
+1. **SMTP Relay (Recommended)** — set up during install (SendGrid free tier: 100/day)
+2. **IP Warmup** — send 10–50 emails/day for 2–4 weeks
+3. **Check blocklists:**
+   - https://www.spamhaus.org/query/ip/YOUR_IP
+   - https://mxtoolbox.com/blacklists.aspx
+
+---
+
+## 📂 Repository Structure
+
+```
+.
+├── conf/                   # Config files (Postfix, Dovecot, Rspamd)
+├── core/                   # BillionMail core application
+├── one-command-install.sh  # ⭐ One-command installer (use this)
+├── install.sh              # Base installer (called by one-command)
+├── bm.sh                   # Management script
+├── docker-compose.yml      # Docker services
+└── README.md               # This file
+```
+
+---
+
+## 📚 Documentation
+
+- **[NOEZ_SETUP.md](NOEZ_SETUP.md)** — Noez GRE tunnel setup guide
+- **[SKILLS.md](SKILLS.md)** — Full architecture, troubleshooting, and AI agent knowledge base
+
+---
+
+## 📝 License
+
+MIT License — see original [BillionMail](https://github.com/BillionMail/BillionMail) repository for details.

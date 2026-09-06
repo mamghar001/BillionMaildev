@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <!-- Background -->
+  <rect width="800" height="800" fill="transparent"/>
+  
+  <!-- Envelope Body -->
+  <rect x="100" y="250" width="600" height="400" rx="20" ry="20" fill="#2980b9"/>
+  
+  <!-- Envelope Flap (V shape) -->
+  <polygon points="100,250 400,450 700,250" fill="#3498db"/>
+  
+  <!-- White Envelope Lines -->
+  <line x1="100" y1="250" x2="400" y2="450" stroke="white" stroke-width="12" stroke-linecap="round"/>
+  <line x1="700" y1="250" x2="400" y2="450" stroke="white" stroke-width="12" stroke-linecap="round"/>
+  
+  <!-- Bottom envelope lines -->
+  <line x1="100" y1="650" x2="300" y2="500" stroke="rgba(255,255,255,0.3)" stroke-width="8" stroke-linecap="round"/>
+  <line x1="700" y1="650" x2="500" y2="500" stroke="rgba(255,255,255,0.3)" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- MoeScale Text -->
+  <text x="400" y="120" font-family="Arial, sans-serif" font-size="100" font-weight="bold" 
+        fill="#2980b9" text-anchor="middle">MoeScale</text>
+  
+  <!-- Tagline -->
+  <text x="400" y="180" font-family="Arial, sans-serif" font-size="45" 
+        fill="#7f8c8d" text-anchor="middle">Email Marketing Platform</text>
+  
+  <!-- Decorative elements - growth arrow -->
+  <polygon points="680,150 720,100 760,150" fill="#2ecc71"/>
+  <line x1="720" y1="150" x2="720" y2="200" stroke="#2ecc71" stroke-width="8" stroke-linecap="round"/>
+</svg>

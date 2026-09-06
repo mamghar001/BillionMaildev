@@ -549,15 +549,11 @@ func getDKIMRecordWithKeySize(domain, selector string, keySize int, validateImme
     {
       path: "/var/lib/rspamd/dkim/%s/default.private";
       selector: "default";
-    },
-    {
-      path: "/var/lib/rspamd/dkim/%s/short.private";
-      selector: "short";
     }
   ]
 }
 #%s_DKIM_END
-`, domain, domain, domain, domain, domain)
+`, domain, domain, domain, domain)
 
 		// Write DKIM sign config to file
 		signConfPath := public.AbsPath(filepath.Join(consts.RSPAMD_LOCAL_D_PATH, "dkim_signing.conf"))
@@ -639,6 +635,8 @@ domain {
 			s += v[1]
 		}
 
+		s = strings.ReplaceAll(s, ";p=", "; p=")
+		s = strings.ReplaceAll(s, ";k=", "; k=")
 		dkimRecord = s
 	}
 
@@ -674,16 +672,23 @@ func GetDMARCRecord(domain string, validateImmediate bool) (record v1.DNSRecord,
 
 // GetSPFRecord retrieves the SPF record for a given domain.
 func GetSPFRecord(domain string, validateImmediate bool) (record v1.DNSRecord, err error) {
-	serverIP, err := public.GetServerIP()
-
+	targetIP, err := public.GetServerIP()
 	if err != nil {
 		err = fmt.Errorf("Failed to get server IP: %v", err)
 		return
 	}
 
-	ipType := "ip4"
+	// Check if this domain has a dedicated outbound IP in bm_multi_ip_domain
+	val, errDb := g.DB().Model("bm_multi_ip_domain").
+		Where("domain", domain).
+		Where("active", 1).
+		Value("outbound_ip")
+	if errDb == nil && val != nil && val.String() != "" {
+		targetIP = val.String()
+	}
 
-	if strings.Contains(serverIP, ":") {
+	ipType := "ip4"
+	if strings.Contains(targetIP, ":") {
 		ipType = "ip6"
 	}
 
@@ -691,7 +696,7 @@ func GetSPFRecord(domain string, validateImmediate bool) (record v1.DNSRecord, e
 	record = v1.DNSRecord{
 		Type:  "TXT",
 		Host:  "@",
-		Value: fmt.Sprintf("v=spf1 +a +mx +%s:%s -all", ipType, serverIP),
+		Value: fmt.Sprintf("v=spf1 +a +mx +%s:%s ~all", ipType, targetIP),
 	}
 
 	if validateImmediate {
@@ -720,23 +725,34 @@ func GetMXRecord(domain string, validateImmediate bool) (record v1.DNSRecord, er
 
 // GetARecord retrieves the A record for a given domain.
 func GetARecord(domain string, validateImmediate bool) (record v1.DNSRecord, err error) {
-	serverIP, err := public.GetServerIP()
+	targetIP, err := public.GetServerIP()
 
 	if err != nil {
 		err = fmt.Errorf("Failed to get server IP: %v", err)
 		return
 	}
 
+	// Check if this domain has a dedicated outbound IP in bm_multi_ip_domain (exclude server host domain)
+	if domain != "b2bprosperity.com" {
+		val, errDb := g.DB().Model("bm_multi_ip_domain").
+			Where("domain", domain).
+			Where("active", 1).
+			Value("outbound_ip")
+		if errDb == nil && val != nil && val.String() != "" {
+			targetIP = val.String()
+		}
+	}
+
 	recordType := "A"
 
-	if strings.Contains(serverIP, ":") {
+	if strings.Contains(targetIP, ":") {
 		recordType = "AAAA"
 	}
 
 	record = v1.DNSRecord{
 		Type:  recordType,
 		Host:  public.FormatMX(domain),
-		Value: serverIP,
+		Value: targetIP,
 	}
 
 	if validateImmediate {
@@ -749,16 +765,25 @@ func GetARecord(domain string, validateImmediate bool) (record v1.DNSRecord, err
 
 // GetPTRRecord retrieves the PTR record for a given domain.
 func GetPTRRecord(domain string, validateImmediate bool) (record v1.DNSRecord, err error) {
-	serverIP, err := public.GetServerIP()
+	targetIP, err := public.GetServerIP()
 
 	if err != nil {
 		err = fmt.Errorf("Failed to get server IP: %v", err)
 		return
 	}
 
+	// Check if this domain has a dedicated outbound IP in bm_multi_ip_domain
+	val, errDb := g.DB().Model("bm_multi_ip_domain").
+		Where("domain", domain).
+		Where("active", 1).
+		Value("outbound_ip")
+	if errDb == nil && val != nil && val.String() != "" {
+		targetIP = val.String()
+	}
+
 	record = v1.DNSRecord{
 		Type:  "PTR",
-		Host:  serverIP,
+		Host:  targetIP,
 		Value: public.FormatMX(domain),
 	}
 
@@ -867,7 +892,7 @@ func RepairDKIMSigningConfig(ctx context.Context) error {
 	// 2. Build the full DKIM config content
 	var allSignConfBlocks strings.Builder
 	for _, d := range ds {
-		// For each domain, generate the correct config block with both selectors
+		// For each domain, generate the correct config block with only the default selector
 		signConf := fmt.Sprintf(`
 #%s_DKIM_BEGIN
 %s {
@@ -875,15 +900,11 @@ func RepairDKIMSigningConfig(ctx context.Context) error {
     {
       path: "/var/lib/rspamd/dkim/%s/default.private";
       selector: "default";
-    },
-    {
-      path: "/var/lib/rspamd/dkim/%s/short.private";
-      selector: "short";
     }
   ]
 }
 #%s_DKIM_END
-`, d.Domain, d.Domain, d.Domain, d.Domain, d.Domain)
+`, d.Domain, d.Domain, d.Domain, d.Domain)
 		allSignConfBlocks.WriteString(signConf)
 	}
 

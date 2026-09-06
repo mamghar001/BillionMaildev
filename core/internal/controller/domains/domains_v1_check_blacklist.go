@@ -4,6 +4,7 @@ import (
 	"billionmail-core/internal/service/domains"
 	"billionmail-core/internal/service/public"
 	"context"
+	"net"
 	"time"
 
 	"billionmail-core/api/domains/v1"
@@ -14,9 +15,12 @@ import (
 
 func (c *ControllerV1) CheckBlacklist(ctx context.Context, req *v1.CheckBlacklistReq) (res *v1.CheckBlacklistRes, err error) {
 	res = &v1.CheckBlacklistRes{}
-	ip, err := domains.ResolveA(req.ARecord, nil)
-	if err != nil {
-		return nil, err
+	ip := req.ARecord
+	if net.ParseIP(ip) == nil {
+		ip, err = domains.ResolveA(req.ARecord, nil)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if ip == "127.0.0.1" {
 		ip, err = public.GetLocalIP()

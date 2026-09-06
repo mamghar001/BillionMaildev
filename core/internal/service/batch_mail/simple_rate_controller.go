@@ -194,3 +194,29 @@ func (r *SimpleRateController) GetCurrentRate() float64 {
 func (r *SimpleRateController) GetMaxRate() int {
 	return r.maxPerMinute
 }
+
+// SetMaxPerMinute updates the maximum sending rate dynamically
+func (r *SimpleRateController) SetMaxPerMinute(maxPerMinute int) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if maxPerMinute <= 0 {
+		maxPerMinute = 1000
+	}
+
+	r.maxPerMinute = maxPerMinute
+	waitTime := time.Duration(float64(time.Minute) / float64(maxPerMinute) * 0.9) // reduce 10% wait time
+
+	minWaitTime := 2 * time.Millisecond
+	if waitTime < minWaitTime {
+		waitTime = minWaitTime
+	}
+
+	r.waitTime = waitTime
+	burstLimit := maxPerMinute / 10
+	if burstLimit < 10 {
+		burstLimit = 10
+	}
+	r.burstLimit = burstLimit
+}
+

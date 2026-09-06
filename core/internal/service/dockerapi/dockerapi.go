@@ -258,6 +258,7 @@ type HostCommandResult struct {
 // Principle: Creates a temporary privileged container mounting the host's root directory,
 // executing commands inside the container that actually operate on the host's file system
 func (d *DockerAPI) ExecHostCommand(ctx context.Context, command []string) (*HostCommandResult, error) {
+	return nil, fmt.Errorf("ExecHostCommand disabled to prevent container flooding")
 	startTime := time.Now()
 	result := &HostCommandResult{
 		ExitCode: -1,

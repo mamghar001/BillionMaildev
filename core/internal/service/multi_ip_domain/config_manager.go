@@ -759,10 +759,13 @@ func (m *ConfigManager) updateMasterCf(ctx context.Context, configs []map[string
 			continue
 		}
 		postfixIP := gconv.String(config["postfix_ip"])
-		//domain := gconv.String(config["domain"])
+		domain := gconv.String(config["domain"])
 
 		blockBuilder.WriteString(fmt.Sprintf("%-10s unix  -       -       n       -       -       smtp\n", serviceName))
 		blockBuilder.WriteString(fmt.Sprintf("    -o smtp_bind_address=%s\n", postfixIP))
+		if domain != "" {
+			blockBuilder.WriteString(fmt.Sprintf("    -o smtp_helo_name=%s\n", domain))
+		}
 
 		//g.Log().Debugf(ctx, "Generating Postfix service %s for domain %s (ID=%d), binding IP: %s",
 		//	domain, config["id"], serviceName, postfixIP)

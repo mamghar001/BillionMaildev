@@ -1,60 +1,93 @@
-# IntelliJ project files
-*.iml
-.idea/
-idea/*
-.vscode/*
-.cursor/
-test/*
-config/*
-temp/
-ssl/*
-bm
+# Sensitive Environment & Secrets
 .env
-billionmail.conf
+.env.*
+noez_setup.env
+*.pem
+*.key
+*.crt
 DBPASS_file.pl
-logs/
-backup/
-vmail-data/
-postfix-data/
-rspamd-data/
+*.env.backup
+
+# Ephemeral & Private Fleet Data
+mailboxes/
+mailboxes_backup_old_*/
+*.csv
+*.sql
+*.txt
+*.json.bak*
+
+# Physical Storage, Sockets & Databases
 postgresql-data/
 postgresql-socket/
 redis-data/
-php-sock/
+rspamd-data/
+vmail-data/
 webmail-data/
 core-data/
-conf/postfix/conf/vmail_ssl.map
-conf/postfix/conf/vmail_ssl.map.db
-conf/postfix/conf/extra.cf
-conf/postfix/sql/
-conf/core/fail2ban/
-conf/dovecot/conf.d/dovecot-sql.conf.ext
-conf/dovecot/conf.d/extra.cf
-conf/rspamd/local.d/dkim_signing.conf
-conf/rspamd/local.d/redis.conf
-ssl-self-signed/cert.pem
-ssl-self-signed/key.pem
-core/billionmail*
+postfix-data/
+php-sock/
 
-# Server-specific runtime configs
-conf/askai/
-conf/chat/
-conf/supplier/
-conf/tokens_cache/
-conf/postfix/conf/
-conf/postfix/main.cf
-conf/postfix/master.cf
-conf/rspamd/local.d/worker-controller.inc
-conf/dovecot/conf.d/10-ssl.conf
-conf/dovecot/conf.d/20-pop3.conf
-conf/dovecot/conf.d/90-quota.conf
-conf/dovecot/dovecot.conf
+# Logs
+logs/
+*.log
 
-# Build/runtime artifacts
-core/frontend/package-lock.json
-core/frontend/.pnpm-store/
-core/frontend/node_modules/
-core/frontend/dist/
-core/public/dist/
+# SSL
+ssl/
+ssl-self-signed/
+
+# Backups & Temporary Files
 docker-compose.yml.bak*
-docker-compose_*.yml
+docker-compose.yml.backup*
+docker-compose.yml.balanced.*
+docker-compose.yml.before-fix.*
+docker-compose.yml.fixed
+*.bak*
+*.backup*
+*.py.backup
+
+# Large Binary Dumps in Core (keep latest production binary, ignore backups)
+core/billionmail.bak*
+core/billionmail-test
+core/billionmail-fixed
+core/billionmail-static
+core/logs/
+core/billionmail*
+core_src/
+custom-postfix/
+
+# AI Chat & Cache data
+conf/tokens_cache/
+conf/chat/
+conf/askai/brainbaba.org/
+conf/askai/buditte.com/
+conf/askai/moescale.site/
+core/public/chat_history.json
+core/container-backup.json
+
+# Temporary / Broken script versions
+*.broken
+*.fixed
+conf/postfix/master.cf.helo-migrate-backup-*
+conf/postfix/master.cf.with_ovh_default
+
+# Database & SASL configs containing generated runtime passwords
+conf/postfix/sql/
+conf/postfix/conf/*.db
+conf/postfix/conf/sasl_passwd*
+conf/postfix/conf/sender_relay_maps*
+conf/dovecot/conf.d/dovecot-sql.conf.ext
+conf/rspamd/local.d/redis.conf
+conf/rspamd/local.d/worker-controller.inc
+
+# All env files anywhere in tree
+**/.env*
+*.env*
+.env*
+*.token*
+.env_token
+
+# AI Model Suppliers (exclude custom runtime keys, keep templates only)
+conf/supplier/*
+!conf/supplier/template/
+
+

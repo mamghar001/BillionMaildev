@@ -43,6 +43,7 @@
 	"devDependencies": {
 		"@eslint/js": "^9.23.0",
 		"@iconify-json/fa": "^1.2.1",
+		"@iconify-json/icon-park-outline": "^1.2.4",
 		"@iconify-json/mdi": "^1.2.3",
 		"@iconify-json/ri": "^1.2.5",
 		"@iconify/json": "^2.2.352",
@@ -76,6 +77,7 @@
 		"ora": "^8.2.0",
 		"prettier": "^3.5.2",
 		"sass": "^1.86.1",
+		"sharp": "^0.34.5",
 		"ssh2": "^1.16.0",
 		"ssh2-sftp-client": "^12.0.0",
 		"typescript": "^5.8.2",

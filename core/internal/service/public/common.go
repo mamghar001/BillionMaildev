@@ -2163,20 +2163,10 @@ func GetLocalIP() (string, error) {
 	}
 
 	if strings.HasPrefix(localIp, "172.") {
-		dk, err := docker.NewDockerAPI()
-
-		if err == nil {
-			defer dk.Close()
-			// If the local IP starts with 172., it may be a Docker container, so we try to get the host's IP
-			res, err := dk.ExecHostShellCommand(context.Background(), "ip addr | grep -E -o '[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}' | grep -E -v \"^127\\.|^255\\.|^0\\.\" | head -n 1")
-
-			if err == nil && res != nil {
-				res.Output = SanitizeIPChars(res.Output)
-
-				if IsIpAddr(res.Output) {
-					localIp = res.Output
-				}
-			}
+		if hostIp := os.Getenv("BILLIONMAIL_HOST_IP"); hostIp != "" && IsIpAddr(hostIp) {
+			localIp = hostIp
+		} else if serverIP, err := GetServerIP(); err == nil && serverIP != "" {
+			localIp = serverIP
 		}
 	}
 
@@ -2659,7 +2649,11 @@ func FormatMX(domain string) string {
 	val, err := g.DB().Model("domain").Where("domain", domain).WhereOr("a_record", domain).Value("a_record")
 
 	if err == nil && !val.IsEmpty() {
-		return val.String()
+		// a_record may contain a Noez IP for blacklist checking (Bug #13 fix).
+		// Do not use an IP address as the hostname/MX target.
+		if net.ParseIP(val.String()) == nil {
+			return val.String()
+		}
 	}
 
 	return "mail." + strings.TrimPrefix(domain, "mail.")

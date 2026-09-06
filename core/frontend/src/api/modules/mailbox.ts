@@ -12,6 +12,12 @@ export const getMailboxList = (params: {
 	return instance.get('/mailbox/list', { params })
 }
 
+export const getAllMailbox = (params: {
+	domain?: string
+} = {}) => {
+	return instance.get('/mailbox/all', { params })
+}
+
 type MailboxParams = {
 	full_name: string
 	domain: string

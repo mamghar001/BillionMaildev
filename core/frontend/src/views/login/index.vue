@@ -7,7 +7,7 @@
 				</div>
 			</div>
 
-			<h2 class="login-title">BillionMail</h2>
+			<h2 class="login-title">MoeScale</h2>
 
 			<n-form ref="formRef" size="large" :model="form" :rules="rules">
 				<n-form-item :show-label="false" path="username">

@@ -731,7 +731,7 @@ password = %s
 hosts = pgsql
 dbname = %s
 
-query = SELECT CONCAT(smtp_name, ':') FROM bm_domain_smtp_transport WHERE domain = '%%s' LIMIT 1`, dbuser, dbpass, dbname),
+query = SELECT CONCAT(smtp_name, ':') FROM bm_domain_smtp_transport WHERE domain = '@%%d' LIMIT 1`, dbuser, dbpass, dbname),
 	}
 
 	sqlDir := path.Join(postfixConfigDir, "sql")

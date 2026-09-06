@@ -99,7 +99,7 @@
 		}
 	},
 	"login": {
-		"title": "BillionMail",
+		"title": "MoeScale",
 		"form": {
 			"usernamePlaceholder": "用户名",
 			"passwordPlaceholder": "密码",
@@ -443,7 +443,7 @@
 			"title": "AI 模板",
 			"welcomeMessage": "您可以说：创建一份欢迎用户加入{domain}的欢迎邮件",
 			"greeting": "让我们创建一个漂亮的邮件模板。",
-			"brandName": "BillionMail",
+			"brandName": "MoeScale",
 			"buttons": {
 				"regenerate": "重新生成",
 				"info": "信息",

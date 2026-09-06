@@ -12,7 +12,7 @@ server:
   # Static Service Configuration
   indexFiles: ["index.html", "index.htm"]
   indexFolder: false
-  serverRoot: "public/dist"
+  serverRoot: "public"
   searchPaths: ["public/html"]
   fileServerEnabled: true
 
@@ -51,7 +51,7 @@ server:
   dumpRouterMap: false # Whether to print all route lists when the Server starts. Default is true
 
   # Version
-  version: "4.9.0"
+  version: "5.0.0"
 
 viewer:
   Paths: ["template"]
@@ -61,7 +61,7 @@ logger:
   path: "logs/out" # Log file path. Default is empty, indicating that it is closed and only output to the terminal
   file: "{Y-m-d}.log" # Log file format. Default is "{Y-m-d}.log"
   prefix: "" # Log content output prefix. Default is empty
-  level: "prod" # Log output level
+  level: "all" # Log output level
   timeFormat: "2006-01-02T15:04:05" # Custom log output time format, using Golang standard time format configuration
   ctxKeys: [] # Custom Context variable name, automatically print Context variables to the log. Default is empty
   header: true # Whether to print the header information of the log. Default is true

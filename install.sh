@@ -162,9 +162,17 @@ if [ -z "${BILLIONMAIL_TIME_ZONE}" ]; then
 fi
 
 DBPASS_file=DBPASS_file.pl
+if [ -f ".env" ]; then
+    source .env 2>/dev/null
+fi
+
 if [ ! -s "${DBPASS_file}" ]; then
-    DBPASS=$(LC_ALL=C </dev/urandom tr -dc A-Za-z0-9 2> /dev/null | head -c 32)
-    echo "${DBPASS}" > ${DBPASS_file}
+    if [ -n "$DBPASS" ]; then
+        echo "${DBPASS}" > ${DBPASS_file}
+    else
+        DBPASS=$(LC_ALL=C </dev/urandom tr -dc A-Za-z0-9 2> /dev/null | head -c 32)
+        echo "${DBPASS}" > ${DBPASS_file}
+    fi
     chmod 600 ${DBPASS_file}
 else
     DBPASS=$(cat ${DBPASS_file})
@@ -1357,7 +1365,11 @@ EOF
         ls -al
         Red_Error "docker-compose.yml not found."
     fi
-    ${DOCKER_COMPOSE} pull
+    ${DOCKER_COMPOSE} pull --ignore-pull-failures || true
+    # Fix for unprivileged postfix container mounting data folder as root
+    mkdir -p postfix-data
+    chown -R 101:102 postfix-data 2>/dev/null || true
+
     ${DOCKER_COMPOSE} up -d
     if [ $? -eq 0 ]; then
         echo -e "Billionmail installation completed successfully!"

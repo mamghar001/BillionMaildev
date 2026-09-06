@@ -4,6 +4,7 @@ import (
 	"billionmail-core/internal/consts"
 	"billionmail-core/internal/service/batch_mail"
 	"billionmail-core/internal/service/public"
+	"billionmail-core/internal/service/warmup"
 	"context"
 
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -48,7 +49,24 @@ func (c *ControllerV1) UpdateTaskInfo(ctx context.Context, req *v1.UpdateTaskInf
 		updateData["unsubscribe"] = req.Unsubscribe
 	}
 	if req.Warmup == 0 || req.Warmup == 1 {
-		updateData["warmup"] = req.Warmup
+		if req.Warmup == 1 {
+			var warmupIP string
+			val, errVal := g.DB().Model("bm_multi_ip_domain").Ctx(ctx).Where("active = 1").Value("outbound_ip")
+			if errVal == nil && !val.IsEmpty() {
+				warmupIP = val.String()
+			} else {
+				warmupIP = "5.230.228.116"
+			}
+			_, err = warmup.WarmupCampaign().AssociateCampaignWithWarmup(ctx, int64(req.TaskId), warmupIP)
+			if err != nil {
+				g.Log().Warning(ctx, "Failed to associate campaign with warmup for task ID %d: %v", req.TaskId, err)
+			}
+		} else {
+			_, err = g.DB().Model("bm_campaign_warmup").Ctx(ctx).Where("task_id", req.TaskId).Delete()
+			if err != nil {
+				g.Log().Warning(ctx, "Failed to disassociate campaign with warmup for task ID %d: %v", req.TaskId, err)
+			}
+		}
 	}
 
 	if req.Addresser != "" {

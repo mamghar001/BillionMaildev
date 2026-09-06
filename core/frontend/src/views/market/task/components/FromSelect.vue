@@ -22,7 +22,7 @@
 import { SelectOption } from 'naive-ui'
 import { isArray, isObject } from '@/utils'
 import { getDomainAll } from '@/api/modules/domain'
-import { getMailboxList } from '@/api/modules/mailbox'
+import { getAllMailbox } from '@/api/modules/mailbox'
 import type { MailDomain } from '@/views/domain/interface'
 import type { MailBox } from '@/views/mailbox/interface'
 
@@ -87,9 +87,9 @@ const getDomainOptions = async () => {
 
 // 获取邮箱列表
 const getSenderOptions = async () => {
-	const res = await getMailboxList({ page: 1, page_size: 1000, domain: '' })
-	if (isObject<{ list: MailBox[] }>(res)) {
-		mailboxList.value = res.list
+	const res = await getAllMailbox()
+	if (isArray<MailBox>(res)) {
+		mailboxList.value = res
 	}
 }
 

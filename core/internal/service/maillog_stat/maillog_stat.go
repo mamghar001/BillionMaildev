@@ -722,6 +722,49 @@ func (ms *MaillogStat) AnalysisAndSaveToDatabase(ctx context.Context) error {
 		if err != nil {
 			g.Log().Error(context.Background(), err.Error())
 		}
+
+		// Deactivate bounced contacts
+		var bouncedEmails []string
+		for _, r := range sendRecords {
+			if r.Status == "bounced" && r.Recipient != "" {
+				isHardBounce := false
+				descLower := strings.ToLower(r.Description)
+				if strings.HasPrefix(r.Dsn, "5.1.") ||
+					strings.Contains(descLower, "5.1.1") ||
+					strings.Contains(descLower, "5.1.0") ||
+					strings.Contains(descLower, "user unknown") ||
+					strings.Contains(descLower, "address rejected") ||
+					strings.Contains(descLower, "not our customer") ||
+					strings.Contains(descLower, "invalid mailbox") ||
+					strings.Contains(descLower, "no such user") ||
+					strings.Contains(descLower, "mailbox unavailable") ||
+					strings.Contains(descLower, "account closed") ||
+					strings.Contains(descLower, "please remove") ||
+					strings.Contains(descLower, "inactive") ||
+					strings.Contains(descLower, "mailbox is full") ||
+					strings.Contains(descLower, "mailbox full") ||
+					strings.Contains(descLower, "over quota") ||
+					strings.Contains(descLower, "overquota") ||
+					strings.Contains(descLower, "mailbox not found") ||
+					strings.Contains(descLower, "mailbox does not exist") {
+					isHardBounce = true
+				}
+				if isHardBounce {
+					bouncedEmails = append(bouncedEmails, r.Recipient)
+				}
+			}
+		}
+		if len(bouncedEmails) > 0 {
+			_, err = g.DB().Model("bm_contacts").
+				WhereIn("email", bouncedEmails).
+				Data(g.Map{"active": 0}).
+				Update()
+			if err != nil {
+				g.Log().Errorf(context.Background(), "Failed to deactivate bounced contacts: %v", err)
+			} else {
+				g.Log().Infof(context.Background(), "Successfully deactivated %d bounced contacts", len(bouncedEmails))
+			}
+		}
 	}
 
 	if len(receiveRecords) > 0 {

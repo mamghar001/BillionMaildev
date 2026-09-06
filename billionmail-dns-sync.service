@@ -1,0 +1,17 @@
+[Unit]
+Description=BillionMail Namecheap DNS Auto-Sync
+After=docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/billionmail/dns_auto_sync.py
+Restart=always
+RestartSec=10
+User=root
+WorkingDirectory=/opt/billionmail
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

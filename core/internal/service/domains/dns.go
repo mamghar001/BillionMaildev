@@ -8,7 +8,16 @@ import (
 	"github.com/gogf/gf/v2/text/gregex"
 	"net"
 	"strings"
+	"time"
 )
+
+var cfResolver = &net.Resolver{
+	PreferGo: true,
+	Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+		d := net.Dialer{Timeout: 3 * time.Second}
+		return d.DialContext(ctx, "udp", "1.1.1.1:53")
+	},
+}
 
 // ValidateARecord checks if the given A record is valid
 func ValidateARecord(record v1.DNSRecord) bool {
@@ -16,8 +25,13 @@ func ValidateARecord(record v1.DNSRecord) bool {
 		return false
 	}
 
-	// Query A records
-	ips, err := net.LookupIP(record.Host)
+	// Query A records via Cloudflare DNS 1.1.1.1
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ips, err := cfResolver.LookupIP(ctx, "ip", record.Host)
+	cancel()
+	if err != nil || len(ips) == 0 {
+		ips, err = net.LookupIP(record.Host)
+	}
 	if err != nil {
 		return false
 	}
@@ -50,9 +64,23 @@ func ValidateTXTRecord(record v1.DNSRecord, domain string) bool {
 		txtRecords = cacheTxtRecords.([]string)
 		g.Log().Debug(context.Background(), "get txt records from cache", cacheTxtRecords)
 	} else {
-		// Query TXT records
+		// Query TXT records using 1.1.1.1 to avoid stale negative caching, with fallback
 		var err error
-		txtRecords, err = net.LookupTXT(domain)
+		cfResolver := &net.Resolver{
+			PreferGo: true,
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				d := net.Dialer{Timeout: 3 * time.Second}
+				return d.DialContext(ctx, "udp", "1.1.1.1:53")
+			},
+		}
+		ctxTimeout, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+		txtRecords, err = cfResolver.LookupTXT(ctxTimeout, domain)
+		cancel()
+
+		if err != nil || len(txtRecords) == 0 {
+			txtRecords, err = net.LookupTXT(domain)
+		}
+
 		if err != nil {
 			// g.Log().Error(context.Background(), "query txt records failed", err)
 			return false
@@ -74,8 +102,35 @@ func ValidateTXTRecord(record v1.DNSRecord, domain string) bool {
 			}
 		}
 	case strings.HasPrefix(vl, "v=dkim"):
-		// Match DKIM Record
-		break
+		// Match DKIM Record (whitespace-tolerant and public key matching per RFC 6376)
+		normRecord := strings.ReplaceAll(record.Value, " ", "")
+		for _, txt := range txtRecords {
+			if strings.ReplaceAll(txt, " ", "") == normRecord {
+				return true
+			}
+		}
+		// Also match by comparing the p= public key value directly
+		pExpected := ""
+		for _, part := range strings.Split(record.Value, ";") {
+			part = strings.TrimSpace(part)
+			if strings.HasPrefix(part, "p=") {
+				pExpected = strings.TrimPrefix(part, "p=")
+				break
+			}
+		}
+		if pExpected != "" {
+			for _, txt := range txtRecords {
+				if strings.Contains(strings.ToLower(txt), "v=dkim1") {
+					for _, part := range strings.Split(txt, ";") {
+						part = strings.TrimSpace(part)
+						if strings.HasPrefix(part, "p=") && strings.TrimPrefix(part, "p=") == pExpected {
+							return true
+						}
+					}
+				}
+			}
+		}
+		return false
 	case strings.HasPrefix(vl, "v=spf"):
 		// Match SPF Record
 		addrs := make([]string, 0)
@@ -139,10 +194,14 @@ func ValidateMXRecord(record v1.DNSRecord, domain string, aRecordHosts ...string
 	aRecordHosts = append([]string{record.Value}, aRecordHosts...)
 
 	for _, d := range domains {
-		// Query MX records
-		mxRecords, err := net.LookupMX(d)
+		// Query MX records via Cloudflare DNS 1.1.1.1
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		mxRecords, err := cfResolver.LookupMX(ctx, d)
+		cancel()
+		if err != nil || len(mxRecords) == 0 {
+			mxRecords, err = net.LookupMX(d)
+		}
 		if err != nil {
-			// g.Log().Error(context.Background(), "query mx record failed", err)
 			return false
 		}
 
@@ -167,8 +226,13 @@ func ValidatePTRRecord(record v1.DNSRecord) bool {
 		return false
 	}
 
-	// Query PTR records
-	ptrRecords, err := net.LookupAddr(record.Host)
+	// Query PTR records via Cloudflare DNS 1.1.1.1
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ptrRecords, err := cfResolver.LookupAddr(ctx, record.Host)
+	cancel()
+	if err != nil || len(ptrRecords) == 0 {
+		ptrRecords, err = net.LookupAddr(record.Host)
+	}
 	if err != nil {
 		return false
 	}

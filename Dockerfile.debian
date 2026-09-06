@@ -1,0 +1,42 @@
+FROM debian:12-slim
+
+LABEL maintainer="https://github.com/aaPanel/BillionMail"
+
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Copy binary
+COPY core/billionmail /opt/billionmail/core/billionmail
+COPY core/manifest /opt/billionmail/core/manifest
+COPY core/languages /opt/billionmail/core/languages
+COPY core/public /opt/billionmail/core/public
+COPY core/resource /opt/billionmail/core/resource
+COPY core/template /opt/billionmail/core/template
+
+# Copy scripts
+COPY Dockerfiles/core/stop-supervisor.sh /stop-supervisor.sh
+COPY Dockerfiles/core/core.sh /core.sh
+COPY Dockerfiles/core/restart_fail2ban.sh /restart_fail2ban.sh
+
+# Install dependencies first (without config files)
+RUN apt-get update && apt-get install -y \
+    bash \
+    ca-certificates \
+    curl \
+    supervisor \
+    rsyslog \
+    tzdata \
+    postgresql-client \
+    fail2ban \
+    iptables \
+    ipset \
+    && rm -rf /var/lib/apt/lists/* \
+    && chmod +x /stop-supervisor.sh /core.sh /restart_fail2ban.sh /opt/billionmail/core/billionmail
+
+# Copy config files after installation to override defaults
+COPY Dockerfiles/core/supervisord.conf /etc/supervisor/supervisord.conf
+COPY Dockerfiles/core/fail2ban.conf /etc/fail2ban/fail2ban.conf
+
+ENTRYPOINT ["/core.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

@@ -216,7 +216,7 @@ const form = reactive({
 	tag_logic: 'OR',
 	track_click: 1,
 	track_open: 1,
-	rotate_senders: 0,
+	rotate_senders: 1, // rotate through all mailboxes
 })
 
 const logicOptions = [
@@ -453,6 +453,7 @@ const initForm = async () => {
 		form.track_open = res.track_open
 		form.track_click = res.track_click
 		form.rotate_senders = res.rotate_senders || 0
+		form.warmup = res.warmup || 0
 		nextTick(() => {
 			form.tag_ids = res.tag_ids
 		})

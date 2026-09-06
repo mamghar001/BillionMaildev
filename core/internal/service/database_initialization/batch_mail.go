@@ -92,6 +92,7 @@ func init() {
 				deferred_count INTEGER NOT NULL DEFAULT 0,
 				group_id INTEGER NOT NULL DEFAULT 0,   
 				stats_update_time INTEGER NOT NULL DEFAULT 0,
+				rotate_senders SMALLINT NOT NULL DEFAULT 1, -- Rotate through ALL mailboxes (0: no, 1: yes)
 				tag_ids TEXT DEFAULT '', -- JSON array of tag ids for filtering contacts
 				tag_logic VARCHAR(10) DEFAULT 'AND' -- Tag logic (AND: must have all tags, OR: have any tag)
     
@@ -255,6 +256,7 @@ func init() {
 		_ = AddColumnIfNotExists("email_tasks", "deferred_count", "INTEGER", "0", true)
 		_ = AddColumnIfNotExists("email_tasks", "stats_update_time", "INTEGER", "0", true)
 		_ = AddColumnIfNotExists("email_tasks", "group_id", "INTEGER", "0", true)
+		_ = AddColumnIfNotExists("email_tasks", "rotate_senders", "SMALLINT", "1", true)
 		_ = AddColumnIfNotExists("email_tasks", "tag_ids", "TEXT", "''", false)
 		_ = AddColumnIfNotExists("email_tasks", "tag_logic", "VARCHAR(10)", "'AND'", false)
 

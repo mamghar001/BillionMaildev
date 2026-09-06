@@ -164,15 +164,18 @@ func CreateTask(ctx context.Context, args CreateTaskArgs) (int, error) {
 
 	if err == nil && args.Warmup == 1 {
 		// link to sender ip warmup
-		serverIP, _ := public.GetServerIP()
+		var warmupIP string
+		val, errVal := g.DB().Model("bm_multi_ip_domain").Ctx(ctx).Where("active = 1").Value("outbound_ip")
+		if errVal == nil && !val.IsEmpty() {
+			warmupIP = val.String()
+		} else {
+			warmupIP = "5.230.228.116"
+		}
+		_, err = warmup.WarmupCampaign().AssociateCampaignWithWarmup(ctx, id, warmupIP)
 
-		if serverIP != "" {
-			_, err = warmup.WarmupCampaign().AssociateCampaignWithWarmup(ctx, id, serverIP)
-
-			if err != nil {
-				g.Log().Warning(ctx, "Failed to associate campaign with warmup for task ID %d: %v", id, err)
-				err = nil
-			}
+		if err != nil {
+			g.Log().Warning(ctx, "Failed to associate campaign with warmup for task ID %d: %v", id, err)
+			err = nil
 		}
 	}
 
@@ -505,10 +508,15 @@ func CreateTaskWithRecipients(ctx context.Context, req *v1.CreateTaskReq, addTyp
 		}
 
 		if req.Warmup == 1 {
-			if serverIP, _ := public.GetServerIP(); serverIP != "" {
-				if _, e2 := warmup.WarmupCampaign().AssociateCampaignWithWarmup(ctx, int64(taskId), serverIP); e2 != nil {
-					g.Log().Warning(ctx, "Failed to associate campaign with warmup for task ID %d: %v", taskId, e2)
-				}
+			var warmupIP string
+			val, errVal := g.DB().Model("bm_multi_ip_domain").Ctx(ctx).Where("active = 1").Value("outbound_ip")
+			if errVal == nil && !val.IsEmpty() {
+				warmupIP = val.String()
+			} else {
+				warmupIP = "5.230.228.116"
+			}
+			if _, e2 := warmup.WarmupCampaign().AssociateCampaignWithWarmup(ctx, int64(taskId), warmupIP); e2 != nil {
+				g.Log().Warning(ctx, "Failed to associate campaign with warmup for task ID %d: %v", taskId, e2)
 			}
 		}
 		return nil

@@ -90,7 +90,7 @@
 		}
 	},
 	"login": {
-		"title": "BillionMail",
+		"title": "MoeScale",
 		"form": {
 			"usernamePlaceholder": "ユーザー名",
 			"passwordPlaceholder": "パスワード",
@@ -421,7 +421,7 @@
 			"title": "AIテンプレート",
 			"welcomeMessage": "例：{domain}に参加するユーザー向けのウェルカムメールを作成してください",
 			"greeting": "美しいメールテンプレートを作成しましょう。",
-			"brandName": "BillionMail",
+			"brandName": "MoeScale",
 			"buttons": {
 				"regenerate": "再生成",
 				"info": "情報",

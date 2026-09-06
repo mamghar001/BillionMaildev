@@ -10,7 +10,7 @@ import (
 type CheckBlacklistReq struct {
 	g.Meta        `path:"/domain_blocklist/check" tags:"Domain" method:"post" sm:"CheckBlacklist" in:"body"`
 	Authorization string `json:"authorization" dc:"Authorization" in:"header"`
-	ARecord       string `json:"a_record" v:"required|domain"`
+	ARecord       string `json:"a_record" v:"required"`
 }
 
 type CheckBlacklistRes struct {

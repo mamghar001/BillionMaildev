@@ -38,13 +38,13 @@ smtps    inet  n       -       n       -       -       smtpd
 #  -o cleanup_service_name=smtp_sender_cleanup
   -o syslog_name=postfix/smtps
 #  -o smtpd_tls_wrappermode=yes
-#  -o smtpd_sasl_auth_enable=yes
+  -o smtpd_sasl_auth_enable=yes
 #  -o smtpd_reject_unlisted_recipient=no
 #  -o smtpd_client_restrictions=$mua_client_restrictions
 #  -o smtpd_helo_restrictions=$mua_helo_restrictions
 #  -o smtpd_sender_restrictions=$mua_sender_restrictions
-#  -o smtpd_recipient_restrictions=
-#  -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
+  -o smtpd_recipient_restrictions=permit_sasl_authenticated,reject
+  -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
   -o milter_macro_daemon_name=ORIGINATING
 
 
@@ -75,6 +75,7 @@ virtual   unix  -       n       n       -       -       virtual
 lmtp      unix  -       -       n       -       -       lmtp
 anvil     unix  -       -       n       -       1       anvil
 scache    unix  -       -       n       -       1       scache
+postlog   unix-dgram n  -       n       -       1       postlogd
 #
 # ====================================================================
 # Interfaces to non-Postfix software. Be sure to examine the manual
@@ -141,3 +142,1343 @@ scache    unix  -       -       n       -       1       scache
 #mailman   unix  -       n       n       -       -       pipe
 #  flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py
 #  ${nexthop} ${user}
+
+# BEGIN BILLIONMAIL multi-ip services
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# END BILLIONMAIL multi-ip services
+
+
+# BEGIN BILLIONMAIL 77.90.32.X dedicated transports
+smtp_bind_ip_77_90_32_18_aibdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.18
+    -o smtp_helo_name=mail.aibdr.shop
+    -o syslog_name=postfix-77-90-32-18
+
+smtp_bind_ip_77_90_32_19_aisdrbox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.19
+    -o smtp_helo_name=mail.aisdrbox.shop
+    -o syslog_name=postfix-77-90-32-19
+
+smtp_bind_ip_77_90_32_41_aisdrflow_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.41
+    -o smtp_helo_name=mail.aisdrflow.shop
+    -o syslog_name=postfix-77-90-32-41
+
+smtp_bind_ip_77_90_32_42_aisdrhq_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.42
+    -o smtp_helo_name=mail.aisdrhq.shop
+    -o syslog_name=postfix-77-90-32-42
+
+smtp_bind_ip_77_90_32_43_aisdrhub_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.43
+    -o smtp_helo_name=mail.aisdrhub.shop
+    -o syslog_name=postfix-77-90-32-43
+
+smtp_bind_ip_77_90_32_44_aisdrkit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.44
+    -o smtp_helo_name=mail.aisdrkit.shop
+    -o syslog_name=postfix-77-90-32-44
+
+smtp_bind_ip_77_90_32_45_aisdrpro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.45
+    -o smtp_helo_name=mail.aisdrpro.shop
+    -o syslog_name=postfix-77-90-32-45
+
+smtp_bind_ip_77_90_32_46_aisdrsync_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.46
+    -o smtp_helo_name=mail.aisdrsync.shop
+    -o syslog_name=postfix-77-90-32-46
+
+smtp_bind_ip_77_90_32_47_ownbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.47
+    -o smtp_helo_name=mail.ownbdr.shop
+    -o syslog_name=postfix-77-90-32-47
+
+smtp_bind_ip_77_90_32_48_ownsdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.48
+    -o smtp_helo_name=mail.ownsdr.shop
+    -o syslog_name=postfix-77-90-32-48
+
+smtp_bind_ip_77_90_32_49_aisdrforge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.49
+    -o smtp_helo_name=mail.aisdrforge.shop
+    -o syslog_name=postfix-77-90-32-49
+
+smtp_bind_ip_77_90_32_50_aisdrreach_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.50
+    -o smtp_helo_name=mail.aisdrreach.shop
+    -o syslog_name=postfix-77-90-32-50
+
+smtp_bind_ip_77_90_32_51_ownbox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.51
+    -o smtp_helo_name=mail.ownbox.shop
+    -o syslog_name=postfix-77-90-32-51
+
+smtp_bind_ip_77_90_32_52_owncold_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.52
+    -o smtp_helo_name=mail.owncold.shop
+    -o syslog_name=postfix-77-90-32-52
+
+smtp_bind_ip_77_90_32_53_ownhq_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.53
+    -o smtp_helo_name=mail.ownhq.shop
+    -o syslog_name=postfix-77-90-32-53
+
+smtp_bind_ip_77_90_32_54_ownhub_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.54
+    -o smtp_helo_name=mail.ownhub.shop
+    -o syslog_name=postfix-77-90-32-54
+
+smtp_bind_ip_77_90_32_55_ownkit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.55
+    -o smtp_helo_name=mail.ownkit.shop
+    -o syslog_name=postfix-77-90-32-55
+
+smtp_bind_ip_77_90_32_56_ownlab_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.56
+    -o smtp_helo_name=mail.ownlab.shop
+    -o syslog_name=postfix-77-90-32-56
+
+smtp_bind_ip_77_90_32_57_ownlead_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.57
+    -o smtp_helo_name=mail.ownlead.shop
+    -o syslog_name=postfix-77-90-32-57
+
+smtp_bind_ip_77_90_32_58_ownleads_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.58
+    -o smtp_helo_name=mail.ownleads.shop
+    -o syslog_name=postfix-77-90-32-58
+
+smtp_bind_ip_77_90_32_59_ownmax_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.59
+    -o smtp_helo_name=mail.ownmax.shop
+    -o syslog_name=postfix-77-90-32-59
+
+smtp_bind_ip_77_90_32_60_ownnet_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.60
+    -o smtp_helo_name=mail.ownnet.shop
+    -o syslog_name=postfix-77-90-32-60
+
+smtp_bind_ip_77_90_32_61_ownops_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.61
+    -o smtp_helo_name=mail.ownops.shop
+    -o syslog_name=postfix-77-90-32-61
+
+smtp_bind_ip_77_90_32_62_ownpro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.62
+    -o smtp_helo_name=mail.ownpro.shop
+    -o syslog_name=postfix-77-90-32-62
+
+smtp_bind_ip_77_90_32_63_ownrun_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.63
+    -o smtp_helo_name=mail.ownrun.shop
+    -o syslog_name=postfix-77-90-32-63
+
+smtp_bind_ip_77_90_32_64_ownsales_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.64
+    -o smtp_helo_name=mail.ownsales.shop
+    -o syslog_name=postfix-77-90-32-64
+
+smtp_bind_ip_77_90_32_65_ownscale_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.65
+    -o smtp_helo_name=mail.ownscale.shop
+    -o syslog_name=postfix-77-90-32-65
+
+smtp_bind_ip_77_90_32_66_ownvps_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.66
+    -o smtp_helo_name=mail.ownvps.shop
+    -o syslog_name=postfix-77-90-32-66
+
+smtp_bind_ip_77_90_32_67_ownwarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.67
+    -o smtp_helo_name=mail.ownwarm.shop
+    -o syslog_name=postfix-77-90-32-67
+
+smtp_bind_ip_77_90_32_68_owncraft_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.68
+    -o smtp_helo_name=mail.owncraft.shop
+    -o syslog_name=postfix-77-90-32-68
+
+smtp_bind_ip_77_90_32_69_ownforge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.69
+    -o smtp_helo_name=mail.ownforge.shop
+    -o syslog_name=postfix-77-90-32-69
+
+smtp_bind_ip_77_90_32_70_ownmint_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.70
+    -o smtp_helo_name=mail.ownmint.shop
+    -o syslog_name=postfix-77-90-32-70
+
+smtp_bind_ip_77_90_32_71_aib2b_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.71
+    -o smtp_helo_name=mail.aib2b.shop
+    -o syslog_name=postfix-77-90-32-71
+
+smtp_bind_ip_77_90_32_72_ailead_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.72
+    -o smtp_helo_name=mail.ailead.shop
+    -o syslog_name=postfix-77-90-32-72
+
+smtp_bind_ip_77_90_32_73_aiwarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.73
+    -o smtp_helo_name=mail.aiwarm.shop
+    -o syslog_name=postfix-77-90-32-73
+
+smtp_bind_ip_77_90_32_74_b2bbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.74
+    -o smtp_helo_name=mail.b2bbdr.shop
+    -o syslog_name=postfix-77-90-32-74
+
+smtp_bind_ip_77_90_32_75_ownbase_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.75
+    -o smtp_helo_name=mail.ownbase.shop
+    -o syslog_name=postfix-77-90-32-75
+
+smtp_bind_ip_77_90_32_76_ownboard_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.76
+    -o smtp_helo_name=mail.ownboard.shop
+    -o syslog_name=postfix-77-90-32-76
+
+smtp_bind_ip_77_90_32_77_ownbridge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.77
+    -o smtp_helo_name=mail.ownbridge.shop
+    -o syslog_name=postfix-77-90-32-77
+
+smtp_bind_ip_77_90_32_78_owncopy_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.78
+    -o smtp_helo_name=mail.owncopy.shop
+    -o syslog_name=postfix-77-90-32-78
+
+smtp_bind_ip_77_90_32_79_owncore_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.79
+    -o smtp_helo_name=mail.owncore.shop
+    -o syslog_name=postfix-77-90-32-79
+
+smtp_bind_ip_77_90_32_80_owncrew_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.80
+    -o smtp_helo_name=mail.owncrew.shop
+    -o syslog_name=postfix-77-90-32-80
+
+smtp_bind_ip_77_90_32_81_owndesk_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.81
+    -o smtp_helo_name=mail.owndesk.shop
+    -o syslog_name=postfix-77-90-32-81
+
+smtp_bind_ip_77_90_32_82_ownedge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.82
+    -o smtp_helo_name=mail.ownedge.shop
+    -o syslog_name=postfix-77-90-32-82
+
+smtp_bind_ip_77_90_32_83_ownflow_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.83
+    -o smtp_helo_name=mail.ownflow.shop
+    -o syslog_name=postfix-77-90-32-83
+
+smtp_bind_ip_77_90_32_84_ownflux_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.84
+    -o smtp_helo_name=mail.ownflux.shop
+    -o syslog_name=postfix-77-90-32-84
+
+smtp_bind_ip_77_90_32_85_owngate_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.85
+    -o smtp_helo_name=mail.owngate.shop
+    -o syslog_name=postfix-77-90-32-85
+
+smtp_bind_ip_77_90_32_86_owninbox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.86
+    -o smtp_helo_name=mail.owninbox.shop
+    -o syslog_name=postfix-77-90-32-86
+
+smtp_bind_ip_77_90_32_87_ownjump_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.87
+    -o smtp_helo_name=mail.ownjump.shop
+    -o syslog_name=postfix-77-90-32-87
+
+smtp_bind_ip_77_90_32_88_ownline_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.88
+    -o smtp_helo_name=mail.ownline.shop
+    -o syslog_name=postfix-77-90-32-88
+
+smtp_bind_ip_77_90_32_89_ownlink_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.89
+    -o smtp_helo_name=mail.ownlink.shop
+    -o syslog_name=postfix-77-90-32-89
+
+smtp_bind_ip_77_90_32_90_ownloom_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.90
+    -o smtp_helo_name=mail.ownloom.shop
+    -o syslog_name=postfix-77-90-32-90
+
+smtp_bind_ip_77_90_32_91_ownloop_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.91
+    -o smtp_helo_name=mail.ownloop.shop
+    -o syslog_name=postfix-77-90-32-91
+
+smtp_bind_ip_77_90_32_92_ownmail_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.92
+    -o smtp_helo_name=mail.ownmail.shop
+    -o syslog_name=postfix-77-90-32-92
+
+smtp_bind_ip_77_90_32_93_ownmesh_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.93
+    -o smtp_helo_name=mail.ownmesh.shop
+    -o syslog_name=postfix-77-90-32-93
+
+smtp_bind_ip_77_90_32_94_ownnode_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.94
+    -o smtp_helo_name=mail.ownnode.shop
+    -o syslog_name=postfix-77-90-32-94
+
+smtp_bind_ip_77_90_32_95_ownorbit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.95
+    -o smtp_helo_name=mail.ownorbit.shop
+    -o syslog_name=postfix-77-90-32-95
+
+smtp_bind_ip_77_90_32_96_ownping_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.96
+    -o smtp_helo_name=mail.ownping.shop
+    -o syslog_name=postfix-77-90-32-96
+
+smtp_bind_ip_77_90_32_97_ownplus_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.97
+    -o smtp_helo_name=mail.ownplus.shop
+    -o syslog_name=postfix-77-90-32-97
+
+smtp_bind_ip_77_90_32_98_ownpulse_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.98
+    -o smtp_helo_name=mail.ownpulse.shop
+    -o syslog_name=postfix-77-90-32-98
+
+smtp_bind_ip_77_90_32_99_ownpush_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.99
+    -o smtp_helo_name=mail.ownpush.shop
+    -o syslog_name=postfix-77-90-32-99
+
+smtp_bind_ip_77_90_32_100_ownreach_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.100
+    -o smtp_helo_name=mail.ownreach.shop
+    -o syslog_name=postfix-77-90-32-100
+
+smtp_bind_ip_77_90_32_101_ownreply_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.101
+    -o smtp_helo_name=mail.ownreply.shop
+    -o syslog_name=postfix-77-90-32-101
+
+smtp_bind_ip_77_90_32_102_ownsend_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.102
+    -o smtp_helo_name=mail.ownsend.shop
+    -o syslog_name=postfix-77-90-32-102
+
+smtp_bind_ip_77_90_32_103_ownserver_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.103
+    -o smtp_helo_name=mail.ownserver.shop
+    -o syslog_name=postfix-77-90-32-103
+
+smtp_bind_ip_77_90_32_104_ownstack_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.104
+    -o smtp_helo_name=mail.ownstack.shop
+    -o syslog_name=postfix-77-90-32-104
+
+smtp_bind_ip_77_90_32_105_ownstream_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.105
+    -o smtp_helo_name=mail.ownstream.shop
+    -o syslog_name=postfix-77-90-32-105
+
+smtp_bind_ip_77_90_32_106_ownsync_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.106
+    -o smtp_helo_name=mail.ownsync.shop
+    -o syslog_name=postfix-77-90-32-106
+
+smtp_bind_ip_77_90_32_107_owntools_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.107
+    -o smtp_helo_name=mail.owntools.shop
+    -o syslog_name=postfix-77-90-32-107
+
+smtp_bind_ip_77_90_32_108_ownvault_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.108
+    -o smtp_helo_name=mail.ownvault.shop
+    -o syslog_name=postfix-77-90-32-108
+
+smtp_bind_ip_77_90_32_109_ownwave_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.109
+    -o smtp_helo_name=mail.ownwave.shop
+    -o syslog_name=postfix-77-90-32-109
+
+smtp_bind_ip_77_90_32_110_ownwire_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.110
+    -o smtp_helo_name=mail.ownwire.shop
+    -o syslog_name=postfix-77-90-32-110
+
+smtp_bind_ip_77_90_32_111_reachbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.111
+    -o smtp_helo_name=mail.reachbdr.shop
+    -o syslog_name=postfix-77-90-32-111
+
+smtp_bind_ip_77_90_32_112_reachsdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.112
+    -o smtp_helo_name=mail.reachsdr.shop
+    -o syslog_name=postfix-77-90-32-112
+
+smtp_bind_ip_77_90_32_113_aib2bhub_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.113
+    -o smtp_helo_name=mail.aib2bhub.shop
+    -o syslog_name=postfix-77-90-32-113
+
+smtp_bind_ip_77_90_32_114_aibeam_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.114
+    -o smtp_helo_name=mail.aibeam.shop
+    -o syslog_name=postfix-77-90-32-114
+
+smtp_bind_ip_77_90_32_115_aicopy_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.115
+    -o smtp_helo_name=mail.aicopy.shop
+    -o syslog_name=postfix-77-90-32-115
+
+smtp_bind_ip_77_90_32_116_ailoom_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.116
+    -o smtp_helo_name=mail.ailoom.shop
+    -o syslog_name=postfix-77-90-32-116
+
+smtp_bind_ip_77_90_32_117_ailoop_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.117
+    -o smtp_helo_name=mail.ailoop.shop
+    -o syslog_name=postfix-77-90-32-117
+
+smtp_bind_ip_77_90_32_118_airesh_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.118
+    -o smtp_helo_name=mail.airesh.shop
+    -o syslog_name=postfix-77-90-32-118
+
+smtp_bind_ip_77_90_32_119_b2bsdrpro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.119
+    -o smtp_helo_name=mail.b2bsdrpro.shop
+    -o syslog_name=postfix-77-90-32-119
+
+smtp_bind_ip_77_90_32_120_coldbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.120
+    -o smtp_helo_name=mail.coldbdr.shop
+    -o syslog_name=postfix-77-90-32-120
+
+smtp_bind_ip_77_90_32_121_coldsdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.121
+    -o smtp_helo_name=mail.coldsdr.shop
+    -o syslog_name=postfix-77-90-32-121
+
+smtp_bind_ip_77_90_32_122_leadbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.122
+    -o smtp_helo_name=mail.leadbdr.shop
+    -o syslog_name=postfix-77-90-32-122
+
+smtp_bind_ip_77_90_32_123_leadsdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.123
+    -o smtp_helo_name=mail.leadsdr.shop
+    -o syslog_name=postfix-77-90-32-123
+
+smtp_bind_ip_77_90_32_124_outboundbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.124
+    -o smtp_helo_name=mail.outboundbdr.shop
+    -o syslog_name=postfix-77-90-32-124
+
+smtp_bind_ip_77_90_32_125_outboundsdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.125
+    -o smtp_helo_name=mail.outboundsdr.shop
+    -o syslog_name=postfix-77-90-32-125
+
+smtp_bind_ip_77_90_32_126_ownoutreach_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.126
+    -o smtp_helo_name=mail.ownoutreach.shop
+    -o syslog_name=postfix-77-90-32-126
+
+smtp_bind_ip_77_90_32_127_reachwarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.127
+    -o smtp_helo_name=mail.reachwarm.shop
+    -o syslog_name=postfix-77-90-32-127
+
+smtp_bind_ip_77_90_32_128_salesbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.128
+    -o smtp_helo_name=mail.salesbdr.shop
+    -o syslog_name=postfix-77-90-32-128
+
+smtp_bind_ip_77_90_32_129_salessdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.129
+    -o smtp_helo_name=mail.salessdr.shop
+    -o syslog_name=postfix-77-90-32-129
+
+smtp_bind_ip_77_90_32_130_scalebdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.130
+    -o smtp_helo_name=mail.scalebdr.shop
+    -o syslog_name=postfix-77-90-32-130
+
+smtp_bind_ip_77_90_32_131_scalesdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.131
+    -o smtp_helo_name=mail.scalesdr.shop
+    -o syslog_name=postfix-77-90-32-131
+
+smtp_bind_ip_77_90_32_132_warmsdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.132
+    -o smtp_helo_name=mail.warmsdr.shop
+    -o syslog_name=postfix-77-90-32-132
+
+smtp_bind_ip_77_90_32_133_aib2bforge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.133
+    -o smtp_helo_name=mail.aib2bforge.shop
+    -o syslog_name=postfix-77-90-32-133
+
+smtp_bind_ip_77_90_32_134_aisalesforge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.134
+    -o smtp_helo_name=mail.aisalesforge.shop
+    -o syslog_name=postfix-77-90-32-134
+
+smtp_bind_ip_77_90_32_135_aiinbox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.135
+    -o smtp_helo_name=mail.aiinbox.shop
+    -o syslog_name=postfix-77-90-32-135
+
+smtp_bind_ip_77_90_32_136_aireply_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.136
+    -o smtp_helo_name=mail.aireply.shop
+    -o syslog_name=postfix-77-90-32-136
+
+smtp_bind_ip_77_90_32_137_aisalesbox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.137
+    -o smtp_helo_name=mail.aisalesbox.shop
+    -o syslog_name=postfix-77-90-32-137
+
+smtp_bind_ip_77_90_32_138_aisalesflow_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.138
+    -o smtp_helo_name=mail.aisalesflow.shop
+    -o syslog_name=postfix-77-90-32-138
+
+smtp_bind_ip_77_90_32_139_aisaleshub_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.139
+    -o smtp_helo_name=mail.aisaleshub.shop
+    -o syslog_name=postfix-77-90-32-139
+
+smtp_bind_ip_77_90_32_140_aisaleskit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.140
+    -o smtp_helo_name=mail.aisaleskit.shop
+    -o syslog_name=postfix-77-90-32-140
+
+smtp_bind_ip_77_90_32_141_aisalespro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.141
+    -o smtp_helo_name=mail.aisalespro.shop
+    -o syslog_name=postfix-77-90-32-141
+
+smtp_bind_ip_77_90_32_142_aisalesreach_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.142
+    -o smtp_helo_name=mail.aisalesreach.shop
+    -o syslog_name=postfix-77-90-32-142
+
+smtp_bind_ip_77_90_32_143_b2bbox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.143
+    -o smtp_helo_name=mail.b2bbox.shop
+    -o syslog_name=postfix-77-90-32-143
+
+smtp_bind_ip_77_90_32_144_b2bkit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.144
+    -o smtp_helo_name=mail.b2bkit.shop
+    -o syslog_name=postfix-77-90-32-144
+
+smtp_bind_ip_77_90_32_145_b2bnet_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.145
+    -o smtp_helo_name=mail.b2bnet.shop
+    -o syslog_name=postfix-77-90-32-145
+
+smtp_bind_ip_77_90_32_146_b2bops_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.146
+    -o smtp_helo_name=mail.b2bops.shop
+    -o syslog_name=postfix-77-90-32-146
+
+smtp_bind_ip_77_90_32_147_b2bpro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.147
+    -o smtp_helo_name=mail.b2bpro.shop
+    -o syslog_name=postfix-77-90-32-147
+
+smtp_bind_ip_77_90_32_148_b2brun_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.148
+    -o smtp_helo_name=mail.b2brun.shop
+    -o syslog_name=postfix-77-90-32-148
+
+smtp_bind_ip_77_90_32_149_b2bscale_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.149
+    -o smtp_helo_name=mail.b2bscale.shop
+    -o syslog_name=postfix-77-90-32-149
+
+smtp_bind_ip_77_90_32_150_b2bwarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.150
+    -o smtp_helo_name=mail.b2bwarm.shop
+    -o syslog_name=postfix-77-90-32-150
+
+smtp_bind_ip_77_90_32_151_coldhq_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.151
+    -o smtp_helo_name=mail.coldhq.shop
+    -o syslog_name=postfix-77-90-32-151
+
+smtp_bind_ip_77_90_32_152_coldleads_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.152
+    -o smtp_helo_name=mail.coldleads.shop
+    -o syslog_name=postfix-77-90-32-152
+
+smtp_bind_ip_77_90_32_153_coldsales_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.153
+    -o smtp_helo_name=mail.coldsales.shop
+    -o syslog_name=postfix-77-90-32-153
+
+smtp_bind_ip_77_90_32_154_coldscale_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.154
+    -o smtp_helo_name=mail.coldscale.shop
+    -o syslog_name=postfix-77-90-32-154
+
+smtp_bind_ip_77_90_32_155_coldwarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.155
+    -o smtp_helo_name=mail.coldwarm.shop
+    -o syslog_name=postfix-77-90-32-155
+
+smtp_bind_ip_77_90_32_156_leadhq_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.156
+    -o smtp_helo_name=mail.leadhq.shop
+    -o syslog_name=postfix-77-90-32-156
+
+smtp_bind_ip_77_90_32_157_leadsales_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.157
+    -o smtp_helo_name=mail.leadsales.shop
+    -o syslog_name=postfix-77-90-32-157
+
+smtp_bind_ip_77_90_32_158_leadwarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.158
+    -o smtp_helo_name=mail.leadwarm.shop
+    -o syslog_name=postfix-77-90-32-158
+
+smtp_bind_ip_77_90_32_159_mailbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.159
+    -o smtp_helo_name=mail.mailbdr.shop
+    -o syslog_name=postfix-77-90-32-159
+
+smtp_bind_ip_77_90_32_160_mailsdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.160
+    -o smtp_helo_name=mail.mailsdr.shop
+    -o syslog_name=postfix-77-90-32-160
+
+smtp_bind_ip_77_90_32_161_outboundleads_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.161
+    -o smtp_helo_name=mail.outboundleads.shop
+    -o syslog_name=postfix-77-90-32-161
+
+smtp_bind_ip_77_90_32_162_outboundscale_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.162
+    -o smtp_helo_name=mail.outboundscale.shop
+    -o syslog_name=postfix-77-90-32-162
+
+smtp_bind_ip_77_90_32_163_outboundwarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.163
+    -o smtp_helo_name=mail.outboundwarm.shop
+    -o syslog_name=postfix-77-90-32-163
+
+smtp_bind_ip_77_90_32_164_reachbeam_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.164
+    -o smtp_helo_name=mail.reachbeam.shop
+    -o syslog_name=postfix-77-90-32-164
+
+smtp_bind_ip_77_90_32_165_reachbox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.165
+    -o smtp_helo_name=mail.reachbox.shop
+    -o syslog_name=postfix-77-90-32-165
+
+smtp_bind_ip_77_90_32_166_reachcopy_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.166
+    -o smtp_helo_name=mail.reachcopy.shop
+    -o syslog_name=postfix-77-90-32-166
+
+smtp_bind_ip_77_90_32_167_reachcrew_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.167
+    -o smtp_helo_name=mail.reachcrew.shop
+    -o syslog_name=postfix-77-90-32-167
+
+smtp_bind_ip_77_90_32_168_reachedge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.168
+    -o smtp_helo_name=mail.reachedge.shop
+    -o syslog_name=postfix-77-90-32-168
+
+smtp_bind_ip_77_90_32_169_reachflux_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.169
+    -o smtp_helo_name=mail.reachflux.shop
+    -o syslog_name=postfix-77-90-32-169
+
+smtp_bind_ip_77_90_32_170_reachhq_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.170
+    -o smtp_helo_name=mail.reachhq.shop
+    -o syslog_name=postfix-77-90-32-170
+
+smtp_bind_ip_77_90_32_171_reachkit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.171
+    -o smtp_helo_name=mail.reachkit.shop
+    -o syslog_name=postfix-77-90-32-171
+
+smtp_bind_ip_77_90_32_172_reachleads_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.172
+    -o smtp_helo_name=mail.reachleads.shop
+    -o syslog_name=postfix-77-90-32-172
+
+smtp_bind_ip_77_90_32_173_reachline_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.173
+    -o smtp_helo_name=mail.reachline.shop
+    -o syslog_name=postfix-77-90-32-173
+
+smtp_bind_ip_77_90_32_174_reachlink_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.174
+    -o smtp_helo_name=mail.reachlink.shop
+    -o syslog_name=postfix-77-90-32-174
+
+smtp_bind_ip_77_90_32_175_reachloom_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.175
+    -o smtp_helo_name=mail.reachloom.shop
+    -o syslog_name=postfix-77-90-32-175
+
+smtp_bind_ip_77_90_32_176_reachloop_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.176
+    -o smtp_helo_name=mail.reachloop.shop
+    -o syslog_name=postfix-77-90-32-176
+
+smtp_bind_ip_77_90_32_177_reachmail_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.177
+    -o smtp_helo_name=mail.reachmail.shop
+    -o syslog_name=postfix-77-90-32-177
+
+smtp_bind_ip_77_90_32_178_reachmark_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.178
+    -o smtp_helo_name=mail.reachmark.shop
+    -o syslog_name=postfix-77-90-32-178
+
+smtp_bind_ip_77_90_32_179_reachmesh_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.179
+    -o smtp_helo_name=mail.reachmesh.shop
+    -o syslog_name=postfix-77-90-32-179
+
+smtp_bind_ip_77_90_32_180_reachnet_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.180
+    -o smtp_helo_name=mail.reachnet.shop
+    -o syslog_name=postfix-77-90-32-180
+
+smtp_bind_ip_77_90_32_181_reachnode_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.181
+    -o smtp_helo_name=mail.reachnode.shop
+    -o syslog_name=postfix-77-90-32-181
+
+smtp_bind_ip_77_90_32_182_reachops_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.182
+    -o smtp_helo_name=mail.reachops.shop
+    -o syslog_name=postfix-77-90-32-182
+
+smtp_bind_ip_77_90_32_183_reachpro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.183
+    -o smtp_helo_name=mail.reachpro.shop
+    -o syslog_name=postfix-77-90-32-183
+
+smtp_bind_ip_77_90_32_184_reachsales_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.184
+    -o smtp_helo_name=mail.reachsales.shop
+    -o syslog_name=postfix-77-90-32-184
+
+smtp_bind_ip_77_90_32_185_reachscale_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.185
+    -o smtp_helo_name=mail.reachscale.shop
+    -o syslog_name=postfix-77-90-32-185
+
+smtp_bind_ip_77_90_32_186_reachsync_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.186
+    -o smtp_helo_name=mail.reachsync.shop
+    -o syslog_name=postfix-77-90-32-186
+
+smtp_bind_ip_77_90_32_187_replybase_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.187
+    -o smtp_helo_name=mail.replybase.shop
+    -o syslog_name=postfix-77-90-32-187
+
+smtp_bind_ip_77_90_32_188_replypro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.188
+    -o smtp_helo_name=mail.replypro.shop
+    -o syslog_name=postfix-77-90-32-188
+
+smtp_bind_ip_77_90_32_189_saleswarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.189
+    -o smtp_helo_name=mail.saleswarm.shop
+    -o syslog_name=postfix-77-90-32-189
+
+smtp_bind_ip_77_90_32_190_scalewarm_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.190
+    -o smtp_helo_name=mail.scalewarm.shop
+    -o syslog_name=postfix-77-90-32-190
+
+smtp_bind_ip_77_90_32_191_sendbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.191
+    -o smtp_helo_name=mail.sendbdr.shop
+    -o syslog_name=postfix-77-90-32-191
+
+smtp_bind_ip_77_90_32_192_sendsdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.192
+    -o smtp_helo_name=mail.sendsdr.shop
+    -o syslog_name=postfix-77-90-32-192
+
+smtp_bind_ip_77_90_32_193_warmleads_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.193
+    -o smtp_helo_name=mail.warmleads.shop
+    -o syslog_name=postfix-77-90-32-193
+
+smtp_bind_ip_77_90_32_194_aireachforge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.194
+    -o smtp_helo_name=mail.aireachforge.shop
+    -o syslog_name=postfix-77-90-32-194
+
+smtp_bind_ip_77_90_32_195_aireplyforge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.195
+    -o smtp_helo_name=mail.aireplyforge.shop
+    -o syslog_name=postfix-77-90-32-195
+
+smtp_bind_ip_77_90_32_196_b2bcraft_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.196
+    -o smtp_helo_name=mail.b2bcraft.shop
+    -o syslog_name=postfix-77-90-32-196
+
+smtp_bind_ip_77_90_32_197_b2bforge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.197
+    -o smtp_helo_name=mail.b2bforge.shop
+    -o syslog_name=postfix-77-90-32-197
+
+smtp_bind_ip_77_90_32_198_b2bmint_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.198
+    -o smtp_helo_name=mail.b2bmint.shop
+    -o syslog_name=postfix-77-90-32-198
+
+smtp_bind_ip_77_90_32_199_coldcraft_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.199
+    -o smtp_helo_name=mail.coldcraft.shop
+    -o syslog_name=postfix-77-90-32-199
+
+smtp_bind_ip_77_90_32_200_coldmint_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.200
+    -o smtp_helo_name=mail.coldmint.shop
+    -o syslog_name=postfix-77-90-32-200
+
+smtp_bind_ip_77_90_32_201_outboundcraft_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.201
+    -o smtp_helo_name=mail.outboundcraft.shop
+    -o syslog_name=postfix-77-90-32-201
+
+smtp_bind_ip_77_90_32_202_outboundforge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.202
+    -o smtp_helo_name=mail.outboundforge.shop
+    -o syslog_name=postfix-77-90-32-202
+
+smtp_bind_ip_77_90_32_203_outboundmint_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.203
+    -o smtp_helo_name=mail.outboundmint.shop
+    -o syslog_name=postfix-77-90-32-203
+
+smtp_bind_ip_77_90_32_204_salesmint_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.204
+    -o smtp_helo_name=mail.salesmint.shop
+    -o syslog_name=postfix-77-90-32-204
+
+smtp_bind_ip_77_90_32_205_aireachcloud_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.205
+    -o smtp_helo_name=mail.aireachcloud.shop
+    -o syslog_name=postfix-77-90-32-205
+
+smtp_bind_ip_77_90_32_206_aireachhub_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.206
+    -o smtp_helo_name=mail.aireachhub.shop
+    -o syslog_name=postfix-77-90-32-206
+
+smtp_bind_ip_77_90_32_207_aireachkit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.207
+    -o smtp_helo_name=mail.aireachkit.shop
+    -o syslog_name=postfix-77-90-32-207
+
+smtp_bind_ip_77_90_32_208_aireachops_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.208
+    -o smtp_helo_name=mail.aireachops.shop
+    -o syslog_name=postfix-77-90-32-208
+
+smtp_bind_ip_77_90_32_209_aireachpro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.209
+    -o smtp_helo_name=mail.aireachpro.shop
+    -o syslog_name=postfix-77-90-32-209
+
+smtp_bind_ip_77_90_32_210_aireplybox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.210
+    -o smtp_helo_name=mail.aireplybox.shop
+    -o syslog_name=postfix-77-90-32-210
+
+smtp_bind_ip_77_90_32_211_aireplycloud_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.211
+    -o smtp_helo_name=mail.aireplycloud.shop
+    -o syslog_name=postfix-77-90-32-211
+
+smtp_bind_ip_77_90_32_212_aireplyhub_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.212
+    -o smtp_helo_name=mail.aireplyhub.shop
+    -o syslog_name=postfix-77-90-32-212
+
+smtp_bind_ip_77_90_32_213_aireplykit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.213
+    -o smtp_helo_name=mail.aireplykit.shop
+    -o syslog_name=postfix-77-90-32-213
+
+smtp_bind_ip_77_90_32_214_aireplyops_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.214
+    -o smtp_helo_name=mail.aireplyops.shop
+    -o syslog_name=postfix-77-90-32-214
+
+smtp_bind_ip_77_90_32_215_aireplypro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.215
+    -o smtp_helo_name=mail.aireplypro.shop
+    -o syslog_name=postfix-77-90-32-215
+
+smtp_bind_ip_77_90_32_216_aireplysync_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.216
+    -o smtp_helo_name=mail.aireplysync.shop
+    -o syslog_name=postfix-77-90-32-216
+
+smtp_bind_ip_77_90_32_217_aireplyvault_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.217
+    -o smtp_helo_name=mail.aireplyvault.shop
+    -o syslog_name=postfix-77-90-32-217
+
+smtp_bind_ip_77_90_32_218_b2bbase_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.218
+    -o smtp_helo_name=mail.b2bbase.shop
+    -o syslog_name=postfix-77-90-32-218
+
+smtp_bind_ip_77_90_32_219_b2bbeam_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.219
+    -o smtp_helo_name=mail.b2bbeam.shop
+    -o syslog_name=postfix-77-90-32-219
+
+smtp_bind_ip_77_90_32_220_b2bbridge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.220
+    -o smtp_helo_name=mail.b2bbridge.shop
+    -o syslog_name=postfix-77-90-32-220
+
+smtp_bind_ip_77_90_32_221_b2bcloud_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.221
+    -o smtp_helo_name=mail.b2bcloud.shop
+    -o syslog_name=postfix-77-90-32-221
+
+smtp_bind_ip_77_90_32_222_b2bcopy_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.222
+    -o smtp_helo_name=mail.b2bcopy.shop
+    -o syslog_name=postfix-77-90-32-222
+
+smtp_bind_ip_77_90_32_223_b2bcrew_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.223
+    -o smtp_helo_name=mail.b2bcrew.shop
+    -o syslog_name=postfix-77-90-32-223
+
+smtp_bind_ip_77_90_32_224_b2bedge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.224
+    -o smtp_helo_name=mail.b2bedge.shop
+    -o syslog_name=postfix-77-90-32-224
+
+smtp_bind_ip_77_90_32_225_b2bflux_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.225
+    -o smtp_helo_name=mail.b2bflux.shop
+    -o syslog_name=postfix-77-90-32-225
+
+smtp_bind_ip_77_90_32_226_b2bgate_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.226
+    -o smtp_helo_name=mail.b2bgate.shop
+    -o syslog_name=postfix-77-90-32-226
+
+smtp_bind_ip_77_90_32_227_b2binbox_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.227
+    -o smtp_helo_name=mail.b2binbox.shop
+    -o syslog_name=postfix-77-90-32-227
+
+smtp_bind_ip_77_90_32_228_b2bjump_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.228
+    -o smtp_helo_name=mail.b2bjump.shop
+    -o syslog_name=postfix-77-90-32-228
+
+smtp_bind_ip_77_90_32_229_b2bline_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.229
+    -o smtp_helo_name=mail.b2bline.shop
+    -o syslog_name=postfix-77-90-32-229
+
+smtp_bind_ip_77_90_32_230_b2bloom_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.230
+    -o smtp_helo_name=mail.b2bloom.shop
+    -o syslog_name=postfix-77-90-32-230
+
+smtp_bind_ip_77_90_32_231_b2bmail_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.231
+    -o smtp_helo_name=mail.b2bmail.shop
+    -o syslog_name=postfix-77-90-32-231
+
+smtp_bind_ip_77_90_32_232_b2bmark_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.232
+    -o smtp_helo_name=mail.b2bmark.shop
+    -o syslog_name=postfix-77-90-32-232
+
+smtp_bind_ip_77_90_32_233_b2bnode_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.233
+    -o smtp_helo_name=mail.b2bnode.shop
+    -o syslog_name=postfix-77-90-32-233
+
+smtp_bind_ip_77_90_32_234_b2borbit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.234
+    -o smtp_helo_name=mail.b2borbit.shop
+    -o syslog_name=postfix-77-90-32-234
+
+smtp_bind_ip_77_90_32_235_b2bpulse_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.235
+    -o smtp_helo_name=mail.b2bpulse.shop
+    -o syslog_name=postfix-77-90-32-235
+
+smtp_bind_ip_77_90_32_236_b2breply_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.236
+    -o smtp_helo_name=mail.b2breply.shop
+    -o syslog_name=postfix-77-90-32-236
+
+smtp_bind_ip_77_90_32_237_b2bsalespro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.237
+    -o smtp_helo_name=mail.b2bsalespro.shop
+    -o syslog_name=postfix-77-90-32-237
+
+smtp_bind_ip_77_90_32_238_b2bsend_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.238
+    -o smtp_helo_name=mail.b2bsend.shop
+    -o syslog_name=postfix-77-90-32-238
+
+smtp_bind_ip_77_90_32_239_b2bsphere_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.239
+    -o smtp_helo_name=mail.b2bsphere.shop
+    -o syslog_name=postfix-77-90-32-239
+
+smtp_bind_ip_77_90_32_240_b2bstack_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.240
+    -o smtp_helo_name=mail.b2bstack.shop
+    -o syslog_name=postfix-77-90-32-240
+
+smtp_bind_ip_77_90_32_241_b2bvault_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.241
+    -o smtp_helo_name=mail.b2bvault.shop
+    -o syslog_name=postfix-77-90-32-241
+
+smtp_bind_ip_77_90_32_242_coldbase_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.242
+    -o smtp_helo_name=mail.coldbase.shop
+    -o syslog_name=postfix-77-90-32-242
+
+smtp_bind_ip_77_90_32_243_coldbeam_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.243
+    -o smtp_helo_name=mail.coldbeam.shop
+    -o syslog_name=postfix-77-90-32-243
+
+smtp_bind_ip_77_90_32_244_coldboard_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.244
+    -o smtp_helo_name=mail.coldboard.shop
+    -o syslog_name=postfix-77-90-32-244
+
+smtp_bind_ip_77_90_32_245_coldcopy_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.245
+    -o smtp_helo_name=mail.coldcopy.shop
+    -o syslog_name=postfix-77-90-32-245
+
+smtp_bind_ip_77_90_32_246_colddesk_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.246
+    -o smtp_helo_name=mail.colddesk.shop
+    -o syslog_name=postfix-77-90-32-246
+
+smtp_bind_ip_77_90_32_247_coldedge_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.247
+    -o smtp_helo_name=mail.coldedge.shop
+    -o syslog_name=postfix-77-90-32-247
+
+smtp_bind_ip_77_90_32_248_coldflux_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.248
+    -o smtp_helo_name=mail.coldflux.shop
+    -o syslog_name=postfix-77-90-32-248
+
+smtp_bind_ip_77_90_32_249_coldgate_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.249
+    -o smtp_helo_name=mail.coldgate.shop
+    -o syslog_name=postfix-77-90-32-249
+
+smtp_bind_ip_77_90_32_250_coldhub_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.250
+    -o smtp_helo_name=mail.coldhub.shop
+    -o syslog_name=postfix-77-90-32-250
+
+smtp_bind_ip_77_90_32_251_coldjump_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.251
+    -o smtp_helo_name=mail.coldjump.shop
+    -o syslog_name=postfix-77-90-32-251
+
+smtp_bind_ip_77_90_32_252_coldkit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.252
+    -o smtp_helo_name=mail.coldkit.shop
+    -o syslog_name=postfix-77-90-32-252
+
+smtp_bind_ip_77_90_32_253_coldline_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.253
+    -o smtp_helo_name=mail.coldline.shop
+    -o syslog_name=postfix-77-90-32-253
+
+smtp_bind_ip_77_90_32_254_coldlink_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.254
+    -o smtp_helo_name=mail.coldlink.shop
+    -o syslog_name=postfix-77-90-32-254
+
+
+
+smtp_bind_ip_77_90_32_2_affiliategrowth_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.2
+    -o smtp_helo_name=mail.affiliategrowth.shop
+    -o syslog_name=postfix-77-90-32-2
+
+smtp_bind_ip_77_90_32_6_afiliatemarketing_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.6
+    -o smtp_helo_name=mail.afiliatemarketing.shop
+    -o syslog_name=postfix-77-90-32-6
+
+smtp_bind_ip_77_90_32_8_aiemailagents_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.8
+    -o smtp_helo_name=mail.aiemailagents.shop
+    -o syslog_name=postfix-77-90-32-8
+
+smtp_bind_ip_77_90_32_9_aioutbound_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.9
+    -o smtp_helo_name=mail.aioutbound.shop
+    -o syslog_name=postfix-77-90-32-9
+
+smtp_bind_ip_77_90_32_11_aioutboundb2b_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.11
+    -o smtp_helo_name=mail.aioutboundb2b.shop
+    -o syslog_name=postfix-77-90-32-11
+
+smtp_bind_ip_77_90_32_12_aioutreach_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.12
+    -o smtp_helo_name=mail.aioutreach.shop
+    -o syslog_name=postfix-77-90-32-12
+
+smtp_bind_ip_5_230_29_58_b2bprosperity_com unix - - n - - smtp
+    -o smtp_bind_address=5.230.29.58
+    -o smtp_helo_name=mail.b2bprosperity.com
+    -o syslog_name=postfix-5-230-29-58
+
+smtp_bind_ip_77_90_32_36_salesassociate_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.36
+    -o smtp_helo_name=mail.salesassociate.shop
+    -o syslog_name=postfix-77-90-32-36
+
+smtp_bind_ip_77_90_32_37_salespartner_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.37
+    -o smtp_helo_name=mail.salespartner.shop
+    -o syslog_name=postfix-77-90-32-37
+
+smtp_bind_ip_77_90_32_39_sponsorsales_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.39
+    -o smtp_helo_name=mail.sponsorsales.shop
+    -o syslog_name=postfix-77-90-32-39
+
+smtp_bind_ip_77_90_32_40_moe_scale_com unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.40
+    -o smtp_helo_name=mail.moe-scale.com
+    -o syslog_name=postfix-77-90-32-40
+
+smtp_bind_ip_77_90_32_3_affiliatehighticket_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.3
+    -o smtp_helo_name=mail.affiliatehighticket.shop
+    -o syslog_name=postfix-77-90-32-3
+
+smtp_bind_ip_77_90_32_4_affiliatehighticketsales_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.4
+    -o smtp_helo_name=mail.affiliatehighticketsales.shop
+    -o syslog_name=postfix-77-90-32-4
+
+smtp_bind_ip_77_90_32_5_affilliatemarketing_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.5
+    -o smtp_helo_name=mail.affilliatemarketing.shop
+    -o syslog_name=postfix-77-90-32-5
+
+smtp_bind_ip_77_90_32_7_aiemail_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.7
+    -o smtp_helo_name=mail.aiemail.shop
+    -o syslog_name=postfix-77-90-32-7
+
+smtp_bind_ip_77_90_32_10_aioutboundagents_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.10
+    -o smtp_helo_name=mail.aioutboundagents.shop
+    -o syslog_name=postfix-77-90-32-10
+
+smtp_bind_ip_77_90_32_15_b2baioutbound_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.15
+    -o smtp_helo_name=mail.b2baioutbound.shop
+    -o syslog_name=postfix-77-90-32-15
+
+smtp_bind_ip_77_90_32_18_brainbaba_org unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.18
+    -o smtp_helo_name=mail.brainbaba.org
+    -o syslog_name=postfix-77-90-32-18
+
+smtp_bind_ip_77_90_32_19_draftshastra_org unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.19
+    -o smtp_helo_name=mail.draftshastra.org
+    -o syslog_name=postfix-77-90-32-19
+
+smtp_bind_ip_77_90_32_25_marketingreferral_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.25
+    -o smtp_helo_name=mail.marketingreferral.shop
+    -o syslog_name=postfix-77-90-32-25
+
+smtp_bind_ip_77_90_32_35_outboundb2b_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.35
+    -o smtp_helo_name=mail.outboundb2b.shop
+    -o syslog_name=postfix-77-90-32-35
+
+smtp_bind_ip_77_90_32_38_salesreferral_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.38
+    -o smtp_helo_name=mail.salesreferral.shop
+    -o syslog_name=postfix-77-90-32-38
+
+smtp_bind_ip_77_90_32_13_coldloom_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.13
+    -o smtp_helo_name=mail.coldloom.shop
+    -o syslog_name=postfix-77-90-32-13
+
+smtp_bind_ip_77_90_32_14_outboundloop_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.14
+    -o smtp_helo_name=mail.outboundloop.shop
+    -o syslog_name=postfix-77-90-32-14
+
+smtp_bind_ip_77_90_32_16_outboundrun_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.16
+    -o smtp_helo_name=mail.outboundrun.shop
+    -o syslog_name=postfix-77-90-32-16
+
+smtp_bind_ip_77_90_32_17_outboundstack_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.17
+    -o smtp_helo_name=mail.outboundstack.shop
+    -o syslog_name=postfix-77-90-32-17
+
+smtp_bind_ip_77_90_32_20_outboundcloud_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.20
+    -o smtp_helo_name=mail.outboundcloud.shop
+    -o syslog_name=postfix-77-90-32-20
+
+smtp_bind_ip_77_90_32_21_outboundflow_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.21
+    -o smtp_helo_name=mail.outboundflow.shop
+    -o syslog_name=postfix-77-90-32-21
+
+smtp_bind_ip_77_90_32_22_outboundbase_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.22
+    -o smtp_helo_name=mail.outboundbase.shop
+    -o syslog_name=postfix-77-90-32-22
+
+smtp_bind_ip_77_90_32_23_outboundline_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.23
+    -o smtp_helo_name=mail.outboundline.shop
+    -o syslog_name=postfix-77-90-32-23
+
+smtp_bind_ip_77_90_32_24_outboundlab_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.24
+    -o smtp_helo_name=mail.outboundlab.shop
+    -o syslog_name=postfix-77-90-32-24
+
+smtp_bind_ip_77_90_32_26_outboundmax_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.26
+    -o smtp_helo_name=mail.outboundmax.shop
+    -o syslog_name=postfix-77-90-32-26
+
+smtp_bind_ip_77_90_32_27_outboundplus_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.27
+    -o smtp_helo_name=mail.outboundplus.shop
+    -o syslog_name=postfix-77-90-32-27
+
+smtp_bind_ip_77_90_32_28_outboundpro_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.28
+    -o smtp_helo_name=mail.outboundpro.shop
+    -o syslog_name=postfix-77-90-32-28
+
+smtp_bind_ip_77_90_32_29_outboundhub_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.29
+    -o smtp_helo_name=mail.outboundhub.shop
+    -o syslog_name=postfix-77-90-32-29
+
+smtp_bind_ip_77_90_32_30_outboundkit_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.30
+    -o smtp_helo_name=mail.outboundkit.shop
+    -o syslog_name=postfix-77-90-32-30
+
+smtp_bind_ip_77_90_32_31_warmhq_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.31
+    -o smtp_helo_name=mail.warmhq.shop
+    -o syslog_name=postfix-77-90-32-31
+
+smtp_bind_ip_77_90_32_32_warmbdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.32
+    -o smtp_helo_name=mail.warmbdr.shop
+    -o syslog_name=postfix-77-90-32-32
+
+smtp_bind_ip_77_90_32_33_replysdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.33
+    -o smtp_helo_name=mail.replysdr.shop
+    -o syslog_name=postfix-77-90-32-33
+
+smtp_bind_ip_77_90_32_34_replybdr_shop unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.34
+    -o smtp_helo_name=mail.replybdr.shop
+    -o syslog_name=postfix-77-90-32-34

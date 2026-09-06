@@ -99,7 +99,7 @@
 		}
 	},
 	"login": {
-		"title": "BillionMail",
+		"title": "MoeScale",
 		"form": {
 			"usernamePlaceholder": "Username",
 			"passwordPlaceholder": "Password",
@@ -439,7 +439,7 @@
 			"title": "AI Template",
 			"welcomeMessage": "You can say: Create a welcome email for users joining {domain}",
 			"greeting": "Let's create a beautiful email template.",
-			"brandName": "BillionMail",
+			"brandName": "MoeScale",
 			"buttons": {
 				"regenerate": "Regenerate",
 				"info": "Info",

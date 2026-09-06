@@ -60,8 +60,9 @@ func (s *MultiIPDomainService) AddConfig(ctx context.Context, domain, outboundIP
 func (s *MultiIPDomainService) generateNetworkConfig(ctx context.Context, tx gdb.TX, domain, outboundIP string) (int64, error) {
 
 	timestamp := time.Now().Format("20060102150405")
-	// master.cf:  smtp_server_name
-	smtpServerName := fmt.Sprintf("smtp_bind_ip_%s_%s", strings.ReplaceAll(outboundIP, ".", "_"), timestamp)
+	// master.cf:  smtp_server_name (deterministic per-domain, no timestamp)
+	domainSlug := strings.ReplaceAll(domain, ".", "_")
+	smtpServerName := fmt.Sprintf("smtp_bind_ip_%s_%s", strings.ReplaceAll(outboundIP, ".", "_"), domainSlug)
 
 	//  docker-compose.yml:  network_name  	 aliases
 	networkName := "billionmail-net-" + timestamp
@@ -134,6 +135,17 @@ func (s *MultiIPDomainService) generateNetworkConfig(ctx context.Context, tx gdb
 	}
 
 	configID, _ := result.LastInsertId()
+
+	// Insert domain → transport mapping for sender-dependent routing
+	_, err = tx.Model("bm_domain_smtp_transport").Data(g.Map{
+		"atype":      "dedicated_ip",
+		"domain":     "@" + domain,
+		"smtp_name":  smtpServerName,
+	}).Insert()
+	if err != nil {
+		return 0, gerror.Wrap(err, "failed to insert domain transport mapping")
+	}
+
 	return configID, nil
 }
 
@@ -330,12 +342,55 @@ func (s *MultiIPDomainService) ApplyConfigs(ctx context.Context) (appliedConfigs
 		return nil, nil, nil, err
 	}
 
+	// Sync bm_domain_smtp_transport with current active configs
+	if syncErr := s.syncDomainSmtpTransport(ctx, allActiveConfigs); syncErr != nil {
+		warnings = append(warnings, "Postfix configs applied, but domain transport sync failed: "+syncErr.Error())
+	}
+
 	// Update status of all related configurations to 'applied'
 	//if err := s.updateStatusByIDs(ctx, appliedIDs, "applied"); err != nil {
 	//	warnings = append(warnings, "Error occurred while updating database status, but configuration files have taken effect.")
 	//}
 
 	return allActiveConfigs, nil, warnings, nil
+}
+
+// syncDomainSmtpTransport ensures bm_domain_smtp_transport matches active bm_multi_ip_domain configs
+func (s *MultiIPDomainService) syncDomainSmtpTransport(ctx context.Context, configs []map[string]interface{}) error {
+	// Clear existing dedicated_ip mappings
+	_, err := g.DB().Model("bm_domain_smtp_transport").Where("atype", "dedicated_ip").Delete()
+	if err != nil {
+		return gerror.Wrap(err, "failed to clear existing domain transport mappings")
+	}
+
+	var mappings []g.Map
+	for _, config := range configs {
+		domain := gconv.String(config["domain"])
+		smtpName := gconv.String(config["smtp_server_name"])
+		if domain == "" || smtpName == "" {
+			continue
+		}
+		mappings = append(mappings, g.Map{
+			"atype":     "dedicated_ip",
+			"domain":    "@" + domain,
+			"smtp_name": smtpName,
+		})
+	}
+
+	if len(mappings) == 0 {
+		return nil
+	}
+
+	_, err = g.DB().Model("bm_domain_smtp_transport").
+		Data(mappings).
+		Batch(100).
+		Insert()
+	if err != nil {
+		return gerror.Wrap(err, "failed to batch insert domain transport mappings")
+	}
+
+	g.Log().Infof(ctx, "Synced %d domain transport mappings", len(mappings))
+	return nil
 }
 
 // getPendingConfigIDs Get all configuration IDs whose status is not 'applied'

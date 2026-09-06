@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"billionmail-core/internal/model/entity"
+	"billionmail-core/internal/service/public"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -33,9 +34,24 @@ func SenderIpWarmup() *SenderIpWarmupService {
 
 // getSenderIdentitiesForIp gets the associated sender identities (e.g., email addresses or domains) for a given sender IP.
 func (s *SenderIpWarmupService) getSenderIdentitiesForIp(ctx context.Context, senderIp string) (domains []string, err error) {
-	// Get the sender identities associated with this IP.
+	serverIP, _ := public.GetServerIP()
 	var vals []gdb.Value
-	vals, err = g.DB().Ctx(ctx).Model("domain").Where("active = 1").Fields("domain").Array("domain")
+
+	if senderIp == serverIP {
+		// Domains that are active and NOT present in bm_multi_ip_domain with active=1 (which would route via Noez IPs)
+		vals, err = g.DB().Ctx(ctx).Model("domain").
+			Where("active = 1").
+			Where("domain NOT IN (SELECT domain FROM bm_multi_ip_domain WHERE active = 1)").
+			Fields("domain").
+			Array("domain")
+	} else {
+		// Domains mapped to this Noez IP
+		vals, err = g.DB().Ctx(ctx).Model("bm_multi_ip_domain").
+			Where("outbound_ip = ?", senderIp).
+			Where("active = 1").
+			Fields("domain").
+			Array("domain")
+	}
 
 	if err != nil {
 		err = fmt.Errorf("getSenderIdentitiesForIp err: %v", err)
@@ -48,7 +64,7 @@ func (s *SenderIpWarmupService) getSenderIdentitiesForIp(ctx context.Context, se
 
 	g.Log().Debug(ctx, "Domains for IP", senderIp, domains)
 
-	return // return empty, let the scoring logic handle the absence of data
+	return
 }
 
 // InitializeOrGetWarmupStatus initializes or retrieves the warmup status of an IP.

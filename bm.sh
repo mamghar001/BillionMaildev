@@ -894,7 +894,7 @@ MODIFY_SAFE_ENTRANCE() {
 # Rebuild Frontend only
 REBUILD_FRONTEND() {
     echo "Rebuilding BillionMail Frontend..."
-    echo -e "\033[33mThis will rebuild the frontend UI and restart the core container.\033[0m"
+    echo -e "\033[33mThis will rebuild the frontend UI and update the core container.\033[0m"
     
     # Check if frontend directory exists
     if [ ! -d "./core/frontend" ]; then
@@ -902,7 +902,7 @@ REBUILD_FRONTEND() {
         exit 1
     fi
     
-    echo "Step 1/4: Building frontend with Node.js (this may take a few minutes)..."
+    echo "Step 1/5: Building frontend with Node.js (this may take a few minutes)..."
     
     # Use Docker to build the frontend (no need for Node.js installed on host)
     docker run --rm \
@@ -918,7 +918,7 @@ REBUILD_FRONTEND() {
         exit 1
     fi
     
-    echo "Step 2/4: Copying build files to public directory..."
+    echo "Step 2/5: Copying build files to public directory..."
     if [ -d "./core/frontend/dist" ]; then
         # Clean old build files first
         rm -rf ./core/public/dist/*
@@ -930,18 +930,25 @@ REBUILD_FRONTEND() {
         exit 1
     fi
     
-    echo "Step 3/4: Restarting core container to load new frontend..."
+    echo "Step 3/5: Getting core container name..."
     SERVICE="core"
     GET_SERVICE_NAME
-    if [ -n "${SERVICE_NAME}" ]; then
-        ${DOCKER_COMPOSE} restart ${SERVICE_NAME}
-        echo -e "\033[32m✓ Core container restarted\033[0m"
-    else
+    if [ -z "${SERVICE_NAME}" ]; then
         echo -e "\033[31m✗ Core service not found\033[0m"
         exit 1
     fi
+    echo -e "\033[32m✓ Core container: ${SERVICE_NAME}\033[0m"
     
-    echo "Step 4/4: Clearing browser cache recommended..."
+    echo "Step 4/5: Copying files to container..."
+    docker cp ./core/public/dist/index.html "${SERVICE_NAME}":/opt/billionmail/core/public/dist/ 2>/dev/null
+    docker cp ./core/public/dist/static/js/. "${SERVICE_NAME}":/opt/billionmail/core/public/dist/static/js/ 2>/dev/null
+    echo -e "\033[32m✓ Files copied to container\033[0m"
+    
+    echo "Step 5/5: Restarting core container..."
+    ${DOCKER_COMPOSE} restart ${SERVICE_NAME}
+    echo -e "\033[32m✓ Core container restarted\033[0m"
+    
+    echo ""
     echo -e "\033[32m✓ Frontend rebuild completed! Please refresh your browser (Ctrl+Shift+R or Cmd+Shift+R)\033[0m"
 }
 

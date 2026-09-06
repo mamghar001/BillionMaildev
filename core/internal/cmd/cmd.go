@@ -373,7 +373,7 @@ var (
 					return
 				}
 
-				r.Response.ServeFile("public/dist/index.html")
+				r.Response.ServeFile("public/index.html")
 			})
 
 			// Generate self-signed certificate if not exists

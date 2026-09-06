@@ -14,7 +14,7 @@
 		<div class="app-logo" :class="{ collapse: isCollapse }">
 			<a href="/">
 				<img class="icon" src="@/assets/images/logo.png"></img>
-				<span v-show="!isCollapse" class="app-name">BillionMail</span>
+				<span v-show="!isCollapse" class="app-name">MoeScale</span>
 			</a>
 		</div>
 
