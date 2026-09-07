@@ -1482,3 +1482,10 @@ smtp_bind_ip_77_90_32_34_replybdr_shop unix - - n - - smtp
     -o smtp_bind_address=77.90.32.34
     -o smtp_helo_name=mail.replybdr.shop
     -o syslog_name=postfix-77-90-32-34
+
+# --- safe default outbound transport (catch-all; bound to /24 IP 77.90.32.40, never the primary 5.230.29.58) ---
+smtp_safe_default unix - - n - - smtp
+    -o smtp_bind_address=77.90.32.40
+    -o smtp_helo_name=outbound-77-90-32-40.b2bprosperity.com
+    -o syslog_name=postfix-safe-default
+
