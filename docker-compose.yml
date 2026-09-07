@@ -135,7 +135,7 @@ services:
       deploy:
         resources:
           limits:
-            memory: 128M
+            memory: 1024M
       image: billionmail/postfix:1.6
       command: ["/postfix-fixed.sh"]
       hostname: postfix

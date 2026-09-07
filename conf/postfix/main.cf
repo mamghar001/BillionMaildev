@@ -1,11 +1,12 @@
 
 # User Overrides-configuration
-maillog_file = /var/log/mail/postfix.log
+maillog_file = /var/log/mail/mail.log
 myhostname = mail.b2bprosperity.com
 myorigin = mail.b2bprosperity.com
 mydestination = localhost
 mynetworks = 127.0.0.0/8, 5.230.29.58, 77.90.32.0/24, 172.66.1.0/24, 172.17.0.0/16, 10.0.0.0/8
 inet_interfaces = all
+default_process_limit = 250
 
 # Virtual domain configuration
 virtual_mailbox_domains = pgsql:/etc/postfix/sql/pgsql_virtual_domains_maps.cf
