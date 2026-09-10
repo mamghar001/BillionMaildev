@@ -1,7 +1,7 @@
 <template>
 	<div class="filter-bar">
 		<div class="w-260px">
-			<n-select v-model:value="domain" :options="domainOptions"></n-select>
+			<n-select v-model:value="domain" :filterable="true" :options="domainOptions"></n-select>
 		</div>
 
 		<div class="date-filters">
