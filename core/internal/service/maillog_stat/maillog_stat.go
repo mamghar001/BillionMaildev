@@ -187,7 +187,7 @@ func NewMaillogStat(maillogPath string, startTime, endTime int64, doSummary bool
 	ms.dsnPattern = regexp.MustCompile(`dsn=([^,]+),`)
 	ms.relayPattern = regexp.MustCompile(`relay=([^,]+),`)
 	ms.descriptionPattern = regexp.MustCompile(`\((.*?)\)$`)
-	ms.messageIDPattern = regexp.MustCompile(`postfix/[^\[]+\[\d+]: *([^:]+):`)
+	ms.messageIDPattern = regexp.MustCompile(`postfix(?:-[^/]+)?/[^\[]+\[\d+]: *([^:]+):`)
 	ms.mailRemovedPattern = regexp.MustCompile(`postfix/qmgr\[\d+]: *([^:]+): *removed$`)
 	ms.mailSenderPattern = regexp.MustCompile(`postfix/qmgr\[\d+]: *([^:]+): *from=<([^>]+)>, +size=(\d+),`)
 
