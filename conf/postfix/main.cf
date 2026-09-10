@@ -58,3 +58,4 @@ smtpd_sasl_type = dovecot
 smtpd_sasl_authenticated_header = yes
 smtpd_sasl_path = inet:127.0.0.1:10002
 smtpd_sasl_auth_enable = yes
+inet_protocols = ipv4
