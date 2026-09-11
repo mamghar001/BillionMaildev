@@ -10,6 +10,7 @@
 				<n-select
 					v-model:value="form.sender_domains"
 					multiple
+					:filterable="true"
 					max-tag-count="responsive"
 					:options="domainOptions">
 				</n-select>

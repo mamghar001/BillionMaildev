@@ -3,6 +3,7 @@
 		<n-select
 			v-model:value="domain"
 			:loading="loading"
+			:filterable="true"
 			:options="domainOptions"
 			@update:value="handleUpdateDomain">
 		</n-select>

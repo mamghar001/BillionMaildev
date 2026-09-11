@@ -25,6 +25,7 @@
 					class="flex-1"
 					label-field="domain"
 					value-field="domain"
+					:filterable="true"
 					:options="domainListHasBrandInfo"
 					:disabled="canNotUse"
 					:render-label="renderLabel">
