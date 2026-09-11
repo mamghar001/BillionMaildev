@@ -1,30 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
-  <!-- Background -->
-  <rect width="800" height="800" fill="transparent"/>
-  
-  <!-- Envelope Body -->
-  <rect x="100" y="250" width="600" height="400" rx="20" ry="20" fill="#2980b9"/>
-  
-  <!-- Envelope Flap (V shape) -->
-  <polygon points="100,250 400,450 700,250" fill="#3498db"/>
-  
-  <!-- White Envelope Lines -->
-  <line x1="100" y1="250" x2="400" y2="450" stroke="white" stroke-width="12" stroke-linecap="round"/>
-  <line x1="700" y1="250" x2="400" y2="450" stroke="white" stroke-width="12" stroke-linecap="round"/>
-  
-  <!-- Bottom envelope lines -->
-  <line x1="100" y1="650" x2="300" y2="500" stroke="rgba(255,255,255,0.3)" stroke-width="8" stroke-linecap="round"/>
-  <line x1="700" y1="650" x2="500" y2="500" stroke="rgba(255,255,255,0.3)" stroke-width="8" stroke-linecap="round"/>
-  
-  <!-- MoeScale Text -->
-  <text x="400" y="120" font-family="Arial, sans-serif" font-size="100" font-weight="bold" 
-        fill="#2980b9" text-anchor="middle">MoeScale</text>
-  
-  <!-- Tagline -->
-  <text x="400" y="180" font-family="Arial, sans-serif" font-size="45" 
-        fill="#7f8c8d" text-anchor="middle">Email Marketing Platform</text>
-  
-  <!-- Decorative elements - growth arrow -->
-  <polygon points="680,150 720,100 760,150" fill="#2ecc71"/>
-  <line x1="720" y1="150" x2="720" y2="200" stroke="#2ecc71" stroke-width="8" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="800" height="800">
+  <defs>
+    <linearGradient id="moeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1D4ED8"/>
+      <stop offset="35%" stop-color="#3B82F6"/>
+      <stop offset="70%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#moeGrad)" d="M12 0C5.394 0 0 5.374 0 12s5.394 12 12 12c6.626 0 12-5.394 12-11.98a11.88 11.88 0 0 0-.727-4.12.815.815 0 0 0-1.05-.486.815.815 0 0 0-.486 1.05c.425 1.132.627 2.324.627 3.556 0 5.717-4.647 10.364-10.364 10.364-5.717 0-10.363-4.647-10.363-10.364C1.637 6.303 6.283 1.657 12 1.657c1.374 0 2.707.262 3.98.787A.843.843 0 0 0 17.05 2a.843.843 0 0 0-.444-1.07A11.588 11.588 0 0 0 12 0zm8.08 4.323-3.595.707.646.647L12 11.111 7.616 6.606 5.091 17.051h2.343l1.394-5.799L12 14.707l6.788-7.394.646.667zm-2.828 6.445-1.858 1.94 1.03 4.343h2.344z"/>
 </svg>
