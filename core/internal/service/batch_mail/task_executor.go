@@ -1672,11 +1672,12 @@ func getMailboxesByDomain(ctx context.Context, domain string) ([]MailboxInfo, er
 	return mailboxes, nil
 }
 
-// getAllMailboxes returns all active mailboxes across all domains
+// getAllMailboxes returns all active mailboxes across all domains (excluding admin domain)
 func getAllMailboxes(ctx context.Context) ([]MailboxInfo, error) {
 	var mailboxes []MailboxInfo
 	err := g.DB().Model("mailbox").
 		Where("active", 1).
+		Where("domain != ?", "b2bprosperity.com").
 		Order("username ASC").
 		Scan(&mailboxes)
 	if err != nil {
